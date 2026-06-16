@@ -23,5 +23,11 @@ db.exec(schema);
 db.close();
 console.log("✓ Skema dibuat dari schema.sql");
 
-// Run the seed script in a child process so it gets a fresh connection.
-execFileSync("npx", ["tsx", path.join(DB_DIR, "seed.ts")], { stdio: "inherit" });
+// Run the seed script in a child process so it gets a fresh connection. Reuse
+// the SAME runtime as this process (node or electron-as-node) so the native
+// better-sqlite3 binding ABI always matches — avoids node/electron whack-a-mole.
+const tsxCli = path.join(process.cwd(), "node_modules", "tsx", "dist", "cli.mjs");
+execFileSync(process.execPath, [tsxCli, path.join(DB_DIR, "seed.ts")], {
+  stdio: "inherit",
+  env: { ...process.env, ELECTRON_RUN_AS_NODE: "1" },
+});
