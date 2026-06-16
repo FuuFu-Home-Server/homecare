@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import { hashSync, verifySync } from "@node-rs/argon2";
 import { getDb } from "@/lib/db/client";
 import { nowWIB } from "@/lib/format";
 import type { CreateUserInput, Role, UpdateUserInput, User } from "@/types";
@@ -88,7 +88,7 @@ export function createUser(input: CreateUserInput): User {
     )
     .run(
       input.username,
-      bcrypt.hashSync(input.password, 10),
+      hashSync(input.password),
       input.role,
       input.nama,
       input.telepon,
@@ -139,17 +139,26 @@ export function updateUser(id: number, input: UpdateUserInput): void {
     );
 }
 
+/** Argon2id verify; a malformed/legacy hash counts as a failed match, not a throw. */
+export function checkPassword(hash: string, password: string): boolean {
+  try {
+    return verifySync(hash, password);
+  } catch {
+    return false;
+  }
+}
+
 export function verifyUserPassword(id: number, password: string): boolean {
   const row = getDb()
     .prepare<[number], { password_hash: string }>("SELECT password_hash FROM users WHERE id = ?")
     .get(id);
-  return row ? bcrypt.compareSync(password, row.password_hash) : false;
+  return row ? checkPassword(row.password_hash, password) : false;
 }
 
 export function setUserPassword(id: number, password: string): void {
   getDb()
     .prepare<[string, number]>("UPDATE users SET password_hash = ? WHERE id = ?")
-    .run(bcrypt.hashSync(password, 10), id);
+    .run(hashSync(password), id);
 }
 
 export function setUserActive(id: number, aktif: boolean): void {

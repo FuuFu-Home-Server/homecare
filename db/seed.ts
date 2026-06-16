@@ -7,7 +7,7 @@
  */
 import Database from "better-sqlite3";
 import { fakerID_ID as faker } from "@faker-js/faker";
-import bcrypt from "bcryptjs";
+import { hashSync } from "@node-rs/argon2";
 import path from "node:path";
 
 if (process.env.NODE_ENV === "production") {
@@ -67,7 +67,7 @@ const seed = db.transaction(() => {
   const insUser = db.prepare(
     "INSERT INTO users (username, password_hash, role, nama, gaji, created_at) VALUES (?,?,?,?,?,?)",
   );
-  const pwHash = (pw: string): string => bcrypt.hashSync(pw, 10);
+  const pwHash = (pw: string): string => hashSync(pw);
   insUser.run("asisten", pwHash("asisten"), "asisten", "Siti Rahayu", 2_500_000, NOW);
   insUser.run("perawat", pwHash("perawat"), "perawat", "Ns. Dewi Lestari, S.Kep.", 4_000_000, NOW);
   const asistenId = 1;

@@ -1,11 +1,10 @@
-import bcrypt from "bcryptjs";
-import { findUserByUsername, findUserById } from "@/lib/db/users";
+import { checkPassword, findUserByUsername, findUserById } from "@/lib/db/users";
 import type { User } from "@/types";
 
 /**
- * Auth seam. The rest of the app depends on this interface, never on bcrypt or
- * the users table directly. Production swaps `DemoAuth` for an SSO/OIDC-backed
- * implementation without touching any call site.
+ * Auth seam. The rest of the app depends on this interface, never on the hashing
+ * library or the users table directly. Swapping the implementation (e.g. to add
+ * a key-derivation step for DB encryption) never touches a call site.
  */
 export interface AuthService {
   /** Verify credentials. Returns the user on success, null on failure. */
@@ -14,13 +13,12 @@ export interface AuthService {
   getUser(id: number): Promise<User | null>;
 }
 
-// DEMO STUB implementation — credentials live in the seeded `users` table.
-class DemoAuth implements AuthService {
+/** Local, on-device accounts with Argon2id password verification. */
+class LocalAuth implements AuthService {
   async login(username: string, password: string): Promise<User | null> {
     const found = findUserByUsername(username);
     if (!found || !found.aktif) return null;
-    const ok = bcrypt.compareSync(password, found.passwordHash);
-    if (!ok) return null;
+    if (!checkPassword(found.passwordHash, password)) return null;
     const { passwordHash: _omit, ...user } = found;
     return user;
   }
@@ -30,4 +28,4 @@ class DemoAuth implements AuthService {
   }
 }
 
-export const authService: AuthService = new DemoAuth();
+export const authService: AuthService = new LocalAuth();

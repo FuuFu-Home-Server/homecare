@@ -20,6 +20,7 @@
     "electron:preview": "npm run build:desktop && npm run electron:build && HOMEDOC_RENDERER=static electron ."
   },
   "dependencies": {
+    "@node-rs/argon2": "^2.0.2",
     "better-sqlite3": "^11.8.1",
     "exceljs": "^4.4.0",
     "iron-session": "^8.0.4",
@@ -30,19 +31,17 @@
     "recharts": "^2.15.0"
   },
   "devDependencies": {
+    "@electron/rebuild": "^3.7.1",
     "@eslint/eslintrc": "^3.2.0",
     "@faker-js/faker": "^9.4.0",
     "@next/eslint-plugin-next": "^16.2.9",
     "@tailwindcss/postcss": "^4.0.0",
-    "@types/bcryptjs": "^2.4.6",
     "@types/better-sqlite3": "^7.6.12",
     "@types/node": "^22.10.7",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",
-    "bcryptjs": "^2.4.3",
     "concurrently": "^9.1.2",
     "electron": "^33.3.1",
-    "@electron/rebuild": "^3.7.1",
     "esbuild": "^0.24.2",
     "eslint": "^9.18.0",
     "eslint-config-next": "^16.2.9",

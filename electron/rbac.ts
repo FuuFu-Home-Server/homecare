@@ -12,13 +12,9 @@ const PERAWAT: ReadonlyArray<Role> = ["perawat"];
 const PUBLIC_PATHS = new Set(["/api/auth/login", "/api/auth/logout", "/api/auth/me"]);
 
 /** Perawat-only: Rekam Medis, Penggajian, Manajemen Staf — by route template. */
-const PERAWAT_PREFIXES = [
-  "/api/records",
-  "/api/payroll",
-  "/api/users",
-  "/api/treatments",
-  "/api/backup",
-];
+// Note: /api/treatments is the tindakan price list read by Kasir (asisten), so
+// it is intentionally NOT perawat-only.
+const PERAWAT_PREFIXES = ["/api/records", "/api/payroll", "/api/users", "/api/backup"];
 const PERAWAT_TEMPLATES = [
   /^\/api\/visits\/\[id\]\/(soap|consult|interventions)$/,
   /^\/api\/interventions\/\[id\]$/,
