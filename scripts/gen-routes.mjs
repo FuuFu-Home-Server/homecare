@@ -75,6 +75,7 @@ import type { RouteEntry } from "./route-types";
 ${imports}
 
 export { closeDb } from "@/lib/db/client";
+export { autoBackupIfDue } from "@/lib/db/backup";
 
 export const ROUTES: RouteEntry[] = [
 ${entries}

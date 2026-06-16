@@ -20,6 +20,7 @@ interface Matched {
 interface RouteChunk {
   ROUTES: RouteEntry[];
   closeDb: () => void;
+  autoBackupIfDue: () => unknown;
 }
 
 let chunkPromise: Promise<RouteChunk> | null = null;
@@ -93,4 +94,14 @@ export async function shutdown(): Promise<void> {
   if (!chunkPromise) return;
   const { closeDb } = await chunkPromise;
   closeDb();
+}
+
+/** Daily on-device backup if due. Loads the DB chunk on demand; never throws. */
+export async function autoBackup(): Promise<void> {
+  try {
+    const { autoBackupIfDue } = await loadChunk();
+    autoBackupIfDue();
+  } catch {
+    /* non-fatal: backup is best-effort */
+  }
 }

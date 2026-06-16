@@ -10,6 +10,7 @@ db/clinic.db
 db/clinic.db-journal
 db/clinic.db-wal
 db/clinic.db-shm
+db/backups/
 .env*.local
 .DS_Store
 next-env.d.ts

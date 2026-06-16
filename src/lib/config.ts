@@ -33,6 +33,13 @@ export interface AppConfig {
   /** Default DataTable page size and selectable options. */
   defaultPageSize: number;
   pageSizeOptions: ReadonlyArray<number>;
+  /** Local backup retention + cadence (no server, so backups are on-device). */
+  backup: {
+    /** Keep this many most-recent snapshots; older are pruned. */
+    keepLast: number;
+    /** Minimum hours between automatic backups. */
+    autoIntervalHours: number;
+  };
 }
 
 export const CONFIG: AppConfig = {
@@ -55,4 +62,8 @@ export const CONFIG: AppConfig = {
   lowStockThreshold: 20,
   defaultPageSize: 10,
   pageSizeOptions: [10, 25, 50],
+  backup: {
+    keepLast: 14,
+    autoIntervalHours: 24,
+  },
 };

@@ -9,13 +9,14 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { StaffManager } from "@/components/pengaturan/StaffManager";
 import { ScheduleEditor } from "@/components/pengaturan/ScheduleEditor";
+import { BackupManager } from "@/components/pengaturan/BackupManager";
 import { useAuth } from "@/hooks/useAuth";
 import { useClinic } from "@/hooks/useClinic";
 import { patchJson } from "@/lib/fetcher";
 import { cn } from "@/lib/cn";
 import type { ClinicConfig } from "@/lib/config";
 
-type Tab = "klinik" | "jadwal" | "akun" | "staf";
+type Tab = "klinik" | "jadwal" | "akun" | "staf" | "cadangan";
 
 export function SettingsView() {
   const { user } = useAuth();
@@ -23,7 +24,12 @@ export function SettingsView() {
     { id: "klinik", label: "Profil Praktik" },
     { id: "jadwal", label: "Jadwal Praktik" },
     { id: "akun", label: "Akun Saya" },
-    ...(user.role === "perawat" ? [{ id: "staf" as const, label: "Manajemen Staf" }] : []),
+    ...(user.role === "perawat"
+      ? [
+          { id: "staf" as const, label: "Manajemen Staf" },
+          { id: "cadangan" as const, label: "Cadangan Data" },
+        ]
+      : []),
   ];
   const [tab, setTab] = useState<Tab>("klinik");
 
@@ -50,6 +56,7 @@ export function SettingsView() {
       {tab === "jadwal" ? <ScheduleEditor /> : null}
       {tab === "akun" ? <AccountForm initialNama={user.nama} /> : null}
       {tab === "staf" && user.role === "perawat" ? <StaffManager currentUserId={user.userId} /> : null}
+      {tab === "cadangan" && user.role === "perawat" ? <BackupManager /> : null}
     </>
   );
 }

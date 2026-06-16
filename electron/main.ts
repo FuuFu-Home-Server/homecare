@@ -2,7 +2,8 @@ import { app, BrowserWindow, shell } from "electron";
 import path from "node:path";
 import { loadWindowState, persistWindowState } from "./window-state";
 import { enableDesktopMode } from "@/lib/request-context";
-import { registerIpc, shutdown } from "./ipc/dispatch";
+import { CONFIG } from "@/lib/config";
+import { autoBackup, registerIpc, shutdown } from "./ipc/dispatch";
 import { APP_ORIGIN, registerAppScheme, registerStaticProtocol } from "./static-protocol";
 
 const RENDERER_DEV_URL = process.env.ELECTRON_RENDERER_URL ?? "http://localhost:3000";
@@ -85,6 +86,10 @@ if (!gotLock) {
     registerIpc();
     if (useStaticRenderer) registerStaticProtocol(OUT_DIR);
     createWindow();
+
+    // On-device backups (no server): run on launch, then on the configured cadence.
+    void autoBackup();
+    setInterval(() => void autoBackup(), CONFIG.backup.autoIntervalHours * 3_600_000);
   });
 
   app.on("activate", () => {

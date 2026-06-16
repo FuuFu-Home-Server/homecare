@@ -22,6 +22,11 @@ function resolveDbPath(): string {
   return process.env.HOMEDOC_DB_PATH ?? path.join(process.cwd(), "db", "clinic.db");
 }
 
+/** Absolute path of the live DB file (honours HOMEDOC_DB_PATH). */
+export function currentDbPath(): string {
+  return resolveDbPath();
+}
+
 /** Canonical schema for bootstrapping a fresh DB. Packaged: bundled resource. */
 function resolveSchemaPath(): string {
   return process.env.HOMEDOC_SCHEMA_PATH ?? path.join(process.cwd(), "db", "schema.sql");
