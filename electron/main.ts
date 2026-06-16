@@ -66,7 +66,12 @@ if (!gotLock) {
   });
 
   void app.whenReady().then(() => {
-    process.env.HOMEDOC_DB_PATH = path.join(app.getPath("userData"), "clinic.db");
+    // Packaged: DB lives in the OS user-data dir (survives app updates). Dev:
+    // fall back to the seeded project db/clinic.db so login works out of the box.
+    // Fresh-DB schema bootstrap for production is handled in the migration step.
+    if (app.isPackaged) {
+      process.env.HOMEDOC_DB_PATH = path.join(app.getPath("userData"), "clinic.db");
+    }
     enableDesktopMode();
     registerIpc();
     createWindow();
