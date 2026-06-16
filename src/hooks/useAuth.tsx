@@ -17,7 +17,6 @@ interface AuthContextValue {
   user: AuthUser;
   busy: boolean;
   logout: () => Promise<void>;
-  switchRole: (role: Role) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -48,19 +47,8 @@ export function AuthProvider({ initialUser, children }: AuthProviderProps) {
     }
   }
 
-  async function switchRole(role: Role): Promise<void> {
-    if (role === initialUser.role) return;
-    setBusy(true);
-    try {
-      await postJson("/api/auth/switch", { role });
-      router.refresh();
-    } finally {
-      setBusy(false);
-    }
-  }
-
   return (
-    <AuthContext.Provider value={{ user: initialUser, busy, logout, switchRole }}>
+    <AuthContext.Provider value={{ user: initialUser, busy, logout }}>
       {children}
     </AuthContext.Provider>
   );

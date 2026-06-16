@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
-import { findUserByRole, findUserByUsername, findUserById } from "@/lib/db/users";
-import type { Role, User } from "@/types";
+import { findUserByUsername, findUserById } from "@/lib/db/users";
+import type { User } from "@/types";
 
 /**
  * Auth seam. The rest of the app depends on this interface, never on bcrypt or
@@ -12,12 +12,6 @@ export interface AuthService {
   login(username: string, password: string): Promise<User | null>;
   /** Look up a user by id (used to rehydrate the session). */
   getUser(id: number): Promise<User | null>;
-  /**
-   * DEMO STUB: instant role switch for the demo. Picks the seeded user for a
-   * role with no password. Production would never expose this — auth would be
-   * per real identity. Marked clearly so it is easy to remove.
-   */
-  switchToRole(role: Role): Promise<User | null>;
 }
 
 // DEMO STUB implementation — credentials live in the seeded `users` table.
@@ -33,10 +27,6 @@ class DemoAuth implements AuthService {
 
   async getUser(id: number): Promise<User | null> {
     return findUserById(id);
-  }
-
-  async switchToRole(role: Role): Promise<User | null> {
-    return findUserByRole(role);
   }
 }
 

@@ -6,12 +6,6 @@ import { CONFIG } from "@/lib/config";
 import { postJson } from "@/lib/fetcher";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import type { Role } from "@/types";
-
-const QUICK: ReadonlyArray<{ role: Role; label: string; desc: string; username: string }> = [
-  { role: "asisten", label: "Asisten", desc: "Registrasi, antrian, kasir", username: "asisten" },
-  { role: "perawat", label: "Perawat", desc: "Akses penuh: asuhan keperawatan, resep, laporan", username: "perawat" },
-];
 
 export default function LoginPage() {
   const router = useRouter();
@@ -57,7 +51,6 @@ export default function LoginPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               autoComplete="username"
-              placeholder="asisten / perawat"
             />
             <Input
               label="Password"
@@ -71,27 +64,6 @@ export default function LoginPage() {
               Masuk
             </Button>
           </form>
-
-          <div className="my-5 flex items-center gap-3 text-xs text-slate-400">
-            <span className="h-px flex-1 bg-slate-200" />
-            masuk cepat (demo)
-            <span className="h-px flex-1 bg-slate-200" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            {QUICK.map((q) => (
-              <button
-                key={q.role}
-                type="button"
-                disabled={busy}
-                onClick={() => submit(q.username, q.username)}
-                className="rounded-lg border border-slate-200 p-3 text-left transition-colors hover:border-brand-400 hover:bg-brand-50 disabled:opacity-50"
-              >
-                <span className="block text-sm font-semibold text-slate-800">{q.label}</span>
-                <span className="mt-0.5 block text-xs text-slate-400">{q.desc}</span>
-              </button>
-            ))}
-          </div>
         </div>
 
         <p className="mt-4 text-center text-xs text-slate-400">SIPP {CONFIG.clinic.sipp}</p>
