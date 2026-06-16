@@ -1,14 +1,10 @@
 import { getIronSession } from "iron-session";
-import { cookies } from "next/headers";
 import { findUserById } from "@/lib/db/users";
-import type { Role } from "@/types";
+import { requestContext } from "@/lib/request-context";
+import type { SessionData } from "@/lib/request-context";
 
-export interface SessionData {
-  userId?: number;
-  username?: string;
-  nama?: string;
-  role?: Role;
-}
+export type { SessionData } from "@/lib/request-context";
+export { runWithUser } from "@/lib/request-context";
 
 // DEMO STUB: hardcoded session secret. Production reads from env (>= 32 chars).
 const SESSION_PASSWORD =
@@ -26,16 +22,18 @@ export const sessionOptions = {
 };
 
 export async function getSession() {
+  const { cookies } = await import("next/headers");
   const store = await cookies();
   return getIronSession<SessionData>(store, sessionOptions);
 }
 
 /** Server-side current user, or null if not logged in / session is stale. */
 export async function currentUser(): Promise<SessionData | null> {
-  const session = await getSession();
-  if (!session.userId || !session.role) return null;
-  // Guard against stale sessions (e.g. after a db:reset reassigns user ids):
-  // the cookie may reference a user that no longer exists or was deactivated.
+  const ctx = requestContext.getStore();
+  const session = ctx !== undefined ? ctx : await getSession();
+  if (!session || !session.userId || !session.role) return null;
+  // Guard against stale sessions: the reference may point at a user that no
+  // longer exists or was deactivated.
   const user = findUserById(session.userId);
   if (!user || !user.aktif) return null;
   return {

@@ -8,18 +8,37 @@ import path from "node:path";
  * lives in a sibling repository module (patients.ts, inventory.ts, ...).
  */
 
-export const DB_PATH = path.join(process.cwd(), "db", "clinic.db");
+/**
+ * DB location resolves lazily so the Electron main process can point at the OS
+ * user-data dir (via HOMEDOC_DB_PATH) before the first connection is opened.
+ * In dev / web / the tsx scripts the env var is unset and we fall back to the
+ * project `db/` folder.
+ */
+function resolveDbPath(): string {
+  return process.env.HOMEDOC_DB_PATH ?? path.join(process.cwd(), "db", "clinic.db");
+}
+
+export const DB_PATH = resolveDbPath();
 
 let instance: Database.Database | null = null;
 
 export function getDb(): Database.Database {
   if (instance) return instance;
-  const db = new Database(DB_PATH);
+  const db = new Database(resolveDbPath());
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");
+  db.pragma("busy_timeout = 5000");
   migrate(db);
   instance = db;
   return db;
+}
+
+/** Flush WAL and release the handle. Called from Electron main on quit. */
+export function closeDb(): void {
+  if (instance) {
+    instance.close();
+    instance = null;
+  }
 }
 
 /** Idempotent additive column migrations for DBs seeded before a column existed. */

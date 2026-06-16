@@ -11,8 +11,10 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p electron/tsconfig.json",
     "db:reset": "tsx db/reset.ts",
     "db:seed": "tsx db/seed.ts",
-    "electron:build": "node scripts/build-electron.mjs",
-    "electron:launch": "node scripts/build-electron.mjs && wait-on tcp:3000 && electron .",
+    "gen:routes": "node scripts/gen-routes.mjs",
+    "electron:build": "npm run gen:routes && node scripts/build-electron.mjs",
+    "electron:rebuild": "electron-rebuild -f -w better-sqlite3",
+    "electron:launch": "npm run electron:build && wait-on tcp:3000 && electron .",
     "electron:dev": "concurrently -k -n next,electron \"npm:dev\" \"npm:electron:launch\""
   },
   "dependencies": {
@@ -38,6 +40,7 @@
     "bcryptjs": "^2.4.3",
     "concurrently": "^9.1.2",
     "electron": "^33.3.1",
+    "@electron/rebuild": "^3.7.1",
     "esbuild": "^0.24.2",
     "eslint": "^9.18.0",
     "eslint-config-next": "^16.2.9",

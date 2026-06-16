@@ -1,6 +1,7 @@
 import { app, BrowserWindow, shell } from "electron";
 import path from "node:path";
 import { loadWindowState, persistWindowState } from "./window-state";
+import { registerIpc, shutdown } from "./ipc/dispatch";
 
 const isDev = !app.isPackaged;
 const RENDERER_DEV_URL = process.env.ELECTRON_RENDERER_URL ?? "http://localhost:3000";
@@ -63,7 +64,11 @@ if (!gotLock) {
     }
   });
 
-  void app.whenReady().then(createWindow);
+  void app.whenReady().then(() => {
+    process.env.HOMEDOC_DB_PATH = path.join(app.getPath("userData"), "clinic.db");
+    registerIpc();
+    createWindow();
+  });
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -71,5 +76,13 @@ if (!gotLock) {
 
   app.on("window-all-closed", () => {
     if (process.platform !== "darwin") app.quit();
+  });
+
+  let quitting = false;
+  app.on("before-quit", (event) => {
+    if (quitting) return;
+    event.preventDefault();
+    quitting = true;
+    void shutdown().finally(() => app.quit());
   });
 }
