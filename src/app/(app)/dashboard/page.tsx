@@ -1,16 +1,32 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { RevenueChart, VisitChart } from "@/components/dashboard/TrendChart";
 import { LowStockCard, NearExpiryCard } from "@/components/dashboard/AlertCard";
-import { getDashboardData } from "@/lib/db/dashboard";
+import { getJson } from "@/lib/fetcher";
 import { rupiah, tglWIB, todayWIB } from "@/lib/format";
 import { IconAntrian, IconKasir, IconPasien, IconRekamMedis } from "@/components/layout/icons";
-
-export const dynamic = "force-dynamic";
+import type { DashboardData } from "@/types";
 
 export default function DashboardPage() {
-  const d = getDashboardData();
+  const [d, setD] = useState<DashboardData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getJson<{ data: DashboardData }>("/api/dashboard")
+      .then((r) => setD(r.data))
+      .catch((e) => setError(e instanceof Error ? e.message : "Gagal memuat dashboard."));
+  }, []);
+
+  if (error) {
+    return <p className="text-sm text-red-600">{error}</p>;
+  }
+  if (!d) {
+    return <p className="text-sm text-slate-400">Memuat…</p>;
+  }
 
   return (
     <>

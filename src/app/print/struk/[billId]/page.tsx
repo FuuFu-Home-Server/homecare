@@ -1,29 +1,53 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { getBillById, getBillItems } from "@/lib/db/billing";
-import { getVisit } from "@/lib/db/queue";
-import { getPatient } from "@/lib/db/patients";
+import { useParams } from "next/navigation";
+import { getJson } from "@/lib/fetcher";
 import { PrintButton } from "@/components/print/PrintButton";
-import { getClinic } from "@/lib/db/settings";
 import { rupiah, tglJamWIB } from "@/lib/format";
 import { METODE_LABEL, JAMINAN_META } from "@/lib/status";
+import type { ClinicConfig } from "@/lib/config";
+import type { Bill, BillItem, Patient, Visit } from "@/types";
 
-export const dynamic = "force-dynamic";
+interface StrukResponse {
+  bill: Bill;
+  items: BillItem[];
+  visit: Visit;
+  patient: Patient;
+}
 
-export default async function StrukPage({
-  params,
-}: {
-  params: Promise<{ billId: string }>;
-}) {
-  const { billId } = await params;
-  const bill = getBillById(Number(billId));
-  if (!bill) notFound();
-  const items = getBillItems(bill.id);
-  const visit = getVisit(bill.visitId);
-  const patient = visit ? getPatient(visit.patientId) : null;
-  if (!visit || !patient) notFound();
+export default function StrukPage() {
+  const params = useParams<{ billId: string }>();
+  const [data, setData] = useState<StrukResponse | null>(null);
+  const [clinic, setClinic] = useState<ClinicConfig | null>(null);
+  const [missing, setMissing] = useState(false);
 
-  const clinic = getClinic();
+  useEffect(() => {
+    setData(null);
+    setMissing(false);
+    void (async () => {
+      try {
+        const [struk, c] = await Promise.all([
+          getJson<StrukResponse>(`/api/bills/${params.billId}`),
+          getJson<{ clinic: ClinicConfig }>("/api/clinic"),
+        ]);
+        setData(struk);
+        setClinic(c.clinic);
+      } catch {
+        setMissing(true);
+      }
+    })();
+  }, [params.billId]);
+
+  if (missing) {
+    return <p className="p-8 text-sm text-slate-400">Struk tidak ditemukan.</p>;
+  }
+  if (!data || !clinic) {
+    return <p className="p-8 text-sm text-slate-400">Memuat…</p>;
+  }
+
+  const { bill, items, visit, patient } = data;
 
   return (
     <div className="min-h-dvh bg-slate-100 py-8 print:bg-white print:py-0">
