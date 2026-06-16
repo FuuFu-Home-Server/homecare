@@ -1,0 +1,12 @@
+node_modules/
+.next/
+out/
+build/
+*.log
+db/clinic.db
+db/clinic.db-journal
+db/clinic.db-wal
+db/clinic.db-shm
+.env*.local
+.DS_Store
+next-env.d.ts

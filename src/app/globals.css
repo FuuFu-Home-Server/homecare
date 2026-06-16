@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/* Design tokens — the single place the brand palette is defined.
+   Swap `--color-brand-*` to re-skin the whole app. Primary = calm medical teal. */
+@theme {
+  --color-brand-50: #f0fdfa;
+  --color-brand-100: #ccfbf1;
+  --color-brand-200: #99f6e4;
+  --color-brand-300: #5eead4;
+  --color-brand-400: #2dd4bf;
+  --color-brand-500: #14b8a6;
+  --color-brand-600: #0d9488;
+  --color-brand-700: #0f766e;
+  --color-brand-800: #115e59;
+  --color-brand-900: #134e4a;
+
+  --font-sans:
+    var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: #f8fafc; /* slate-50 */
+  color: #0f172a; /* slate-900 */
+  font-feature-settings: "cv11";
+}
+
+/* Tabular figures for money/number columns. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Print: hide app chrome, reset background to clean white sheet. */
+@page {
+  margin: 12mm;
+}
+
+@media print {
+  body {
+    background: #fff;
+    /* Keep brand colors, status pills and table fills in printed docs. */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-sheet {
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+  }
+}
