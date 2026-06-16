@@ -12,3 +12,5 @@ db/clinic.db-shm
 .env*.local
 .DS_Store
 next-env.d.ts
+
+*.tsbuildinfo
