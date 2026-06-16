@@ -2,6 +2,8 @@ node_modules/
 .next/
 out/
 build/
+dist-electron/
+release/
 *.log
 db/clinic.db
 db/clinic.db-journal

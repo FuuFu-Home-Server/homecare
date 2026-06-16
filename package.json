@@ -2,14 +2,18 @@
   "name": "homedoc",
   "version": "0.1.0",
   "private": true,
+  "main": "dist-electron/main.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint \"src/**/*.{ts,tsx}\" \"db/**/*.ts\"",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p electron/tsconfig.json",
     "db:reset": "tsx db/reset.ts",
-    "db:seed": "tsx db/seed.ts"
+    "db:seed": "tsx db/seed.ts",
+    "electron:build": "node scripts/build-electron.mjs",
+    "electron:launch": "node scripts/build-electron.mjs && wait-on tcp:3000 && electron .",
+    "electron:dev": "concurrently -k -n next,electron \"npm:dev\" \"npm:electron:launch\""
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1",
@@ -32,12 +36,16 @@
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",
     "bcryptjs": "^2.4.3",
+    "concurrently": "^9.1.2",
+    "electron": "^33.3.1",
+    "esbuild": "^0.24.2",
     "eslint": "^9.18.0",
     "eslint-config-next": "^16.2.9",
     "prettier": "^3.4.2",
     "tailwindcss": "^4.0.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.61.0"
+    "typescript-eslint": "^8.61.0",
+    "wait-on": "^8.0.1"
   }
 }

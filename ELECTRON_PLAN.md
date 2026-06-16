@@ -26,8 +26,25 @@ print pipeline         no remote
 Call sites in hooks stay identical. IPC handlers and route handlers share the **same** repository + validation + RBAC helpers (one `handlers/` module both import), so logic is never duplicated.
 
 ### Build shape
-- `electron/main.ts`, `electron/preload.ts`, `electron/ipc/*` (handler registration), `electron/db/*` (path resolution, backup, encryption key).
-- Renderer = `next build` static export served via custom protocol (`app://`) from main, OR `next start` in-process. **Recommend static export over `app://`** — no localhost port, fully offline, smaller attack surface. Confirm in open questions (some Server Components / route handlers may block pure static export; audit needed — most pages are `"use client"`).
+- `electron/main.ts`, `electron/preload.ts`, `electron/ipc/*` (dispatch + RBAC policy), `electron/db/*` (path resolution, backup, encryption key).
+- Renderer = `next build` static export (`output: 'export'`) served via custom protocol (`app://`) from main. No localhost port, fully offline.
+
+### Locked implementation design (transport = IPC + static export)
+Audit found **19/20 pages are Server Components**; 5 read `lib/db` during SSR. Static export forbids SSR-DB and dynamic API route handlers. Resolution:
+- **Shared handler extraction.** Move each route's core logic into `src/lib/api/<mod>.ts` pure functions `(input, ctx)=>result`. `app/api/*` routes become thin wrappers (kept for future web build). The IPC dispatcher in main imports the **same** `lib/api/*` functions. One logic home — satisfies "one handlers module both import".
+- **Session = transport-agnostic via AsyncLocalStorage.** Rewrite `lib/session.ts`: `currentUser()` reads the user from an ALS context, not `next/headers` cookies. Main's IPC dispatcher runs each call inside `als.run({user}, fn)` seeded from the main-process session store (set on login IPC). Web (future) seeds ALS from the iron-session cookie in middleware. Removes the cookie coupling that blocks running handlers in main.
+- **RBAC policy table** in the dispatcher: every `method+path` declares allowed roles; asisten hitting a perawat-only path is rejected in main. Fixes today's authn-only gap centrally.
+- **SSR pages → client + IPC.** Refactor the 5 DB-reading Server Components ([(app)/layout.tsx], dashboard, pasien/[id], print/struk/[billId], root page) to client components fed through the fetcher→IPC seam. After this, the renderer never touches `lib/db`.
+- **Static export friction:**
+  - `app/api` cannot exist in an export build (non-GET handlers error). Desktop build script sidelines `src/app/api` during `next build`, restores after. Routes stay in-tree for web.
+  - Dynamic routes (`[id]`,`[visitId]`,`[billId]`) get `generateStaticParams = () => [{...:"_"}]` to emit a template; the `app://` protocol handler in main prefix-maps real ids (`/pasien/123`) to the template; client reads the real id via `useParams()`/location.
+- **fetcher seam.** `lib/fetcher.ts` detects `window.api` (desktop) → `window.api.invoke(method,path,body)`; else real `fetch`. Hook call sites unchanged.
+
+### Sub-steps (committed increments)
+- **2a** Electron shell + esbuild build for main/preload + single-instance + window-state. Opens window on existing dev server. ← building now
+- **2b** better-sqlite3 + `getDb` to main; `lib/api/*` extraction; IPC dispatcher + RBAC table; preload `window.api`.
+- **2c** fetcher transport switch; session→ALS; auth login/logout/me over IPC; main session store.
+- **2d** Refactor 5 SSR pages → client+IPC; `next.config` export + api sideline script + dynamic-route templates; `app://` protocol. App runs fully over IPC, no port.
 
 ### Lifecycle
 - `app.requestSingleInstanceLock()` — second launch focuses existing window.
