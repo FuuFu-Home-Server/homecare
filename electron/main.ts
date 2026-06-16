@@ -78,6 +78,8 @@ if (!gotLock) {
     // Fresh-DB schema bootstrap for production is handled in the migration step.
     if (app.isPackaged) {
       process.env.HOMEDOC_DB_PATH = path.join(app.getPath("userData"), "clinic.db");
+      // schema.sql ships as an extraResource (see electron-builder config).
+      process.env.HOMEDOC_SCHEMA_PATH = path.join(process.resourcesPath, "schema.sql");
     }
     enableDesktopMode();
     registerIpc();

@@ -10,6 +10,11 @@ import { fakerID_ID as faker } from "@faker-js/faker";
 import bcrypt from "bcryptjs";
 import path from "node:path";
 
+if (process.env.NODE_ENV === "production") {
+  console.error("db:seed is a dev-only tool and is disabled in production builds.");
+  process.exit(1);
+}
+
 faker.seed(20260615);
 
 const DB_PATH = path.join(process.cwd(), "db", "clinic.db");

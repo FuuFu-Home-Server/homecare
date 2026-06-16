@@ -110,6 +110,9 @@ Audit found **19/20 pages are Server Components**; 5 read `lib/db` during SSR. S
 7. electron-builder + electron-updater + client docs (install/update/backup).
 8. Hardening: offline full-visit run-through, IPC/secret security review, large-dataset perf.
 
+## Known gaps to revisit (post step-2)
+- **Some desktop features missing under preview** (reported after electron:preview). Prime suspects: RBAC over-restriction in `electron/rbac.ts` (e.g. `/api/treatments` marked perawat-only but asisten/kasir may need it → 403) — finalize the policy table in step 4; print-to-PDF pipeline (step 5). User to enumerate the missing features; revisit before step 2 sign-off / during step 4.
+
 ## Decisions (locked 2026-06-16)
 1. **OS target — Windows only.** electron-builder NSIS target; macOS/Linux out of scope.
 2. **Encryption key — login-derived (Argon2id) + owner recovery key.** DB key from password; one-time recovery key issued at first-run, owner stores offline. Forgotten password + lost recovery = unrecoverable (documented).

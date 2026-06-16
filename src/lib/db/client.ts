@@ -1,4 +1,5 @@
 import Database from "better-sqlite3";
+import fs from "node:fs";
 import path from "node:path";
 
 /**
@@ -8,6 +9,9 @@ import path from "node:path";
  * lives in a sibling repository module (patients.ts, inventory.ts, ...).
  */
 
+/** Bump when a migration is appended to MIGRATIONS. Fresh DBs jump straight here. */
+const SCHEMA_VERSION = 1;
+
 /**
  * DB location resolves lazily so the Electron main process can point at the OS
  * user-data dir (via HOMEDOC_DB_PATH) before the first connection is opened.
@@ -16,6 +20,11 @@ import path from "node:path";
  */
 function resolveDbPath(): string {
   return process.env.HOMEDOC_DB_PATH ?? path.join(process.cwd(), "db", "clinic.db");
+}
+
+/** Canonical schema for bootstrapping a fresh DB. Packaged: bundled resource. */
+function resolveSchemaPath(): string {
+  return process.env.HOMEDOC_SCHEMA_PATH ?? path.join(process.cwd(), "db", "schema.sql");
 }
 
 export const DB_PATH = resolveDbPath();
@@ -41,8 +50,47 @@ export function closeDb(): void {
   }
 }
 
-/** Idempotent additive column migrations for DBs seeded before a column existed. */
-function migrate(db: Database.Database): void {
+/** Run PRAGMA quick_check; returns null when healthy, else the first problem. */
+export function integrityCheck(db: Database.Database = getDb()): string | null {
+  const rows = db.pragma("quick_check") as { quick_check: string }[];
+  const first = rows[0]?.quick_check;
+  return first === "ok" || first === undefined ? null : first;
+}
+
+function tableExists(db: Database.Database, name: string): boolean {
+  return (
+    db
+      .prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?")
+      .get(name) !== undefined
+  );
+}
+
+function userVersion(db: Database.Database): number {
+  return Number(db.pragma("user_version", { simple: true }));
+}
+
+/**
+ * Versioned migration runner. Keeps the `schema.sql` + runner dual-write rule:
+ *  - schema.sql is the canonical truth applied to a FRESH db (then user_version
+ *    is set to SCHEMA_VERSION).
+ *  - existing DBs upgrade incrementally via MIGRATIONS, tracked by user_version.
+ *  - pre-versioning DBs (user_version 0 but tables present) get the legacy
+ *    additive columns, then are pinned at the v1 baseline.
+ *
+ * Adding a schema change: edit schema.sql AND append a { version, up } entry,
+ * then bump SCHEMA_VERSION.
+ */
+interface Migration {
+  version: number;
+  up: (db: Database.Database) => void;
+}
+
+const MIGRATIONS: ReadonlyArray<Migration> = [
+  // { version: 2, up: (db) => db.exec("ALTER TABLE ... ADD COLUMN ...") },
+];
+
+/** Additive columns/tables for DBs created before versioning (the v0 baseline). */
+function applyLegacyBaseline(db: Database.Database): void {
   const add = (table: string, column: string, decl: string): void => {
     const cols = db.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
     if (!cols.some((c) => c.name === column)) {
@@ -70,4 +118,30 @@ function migrate(db: Database.Database): void {
        UNIQUE (user_id, bulan)
      )`,
   );
+}
+
+function migrate(db: Database.Database): void {
+  if (!tableExists(db, "clinic_settings")) {
+    db.exec(fs.readFileSync(resolveSchemaPath(), "utf8"));
+    db.pragma(`user_version = ${SCHEMA_VERSION}`);
+    return;
+  }
+
+  let version = userVersion(db);
+  if (version === 0) {
+    applyLegacyBaseline(db);
+    db.pragma("user_version = 1");
+    version = 1;
+  }
+
+  for (const m of MIGRATIONS) {
+    if (m.version > version) {
+      const run = db.transaction(() => {
+        m.up(db);
+        db.pragma(`user_version = ${m.version}`);
+      });
+      run();
+      version = m.version;
+    }
+  }
 }

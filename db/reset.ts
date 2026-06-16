@@ -7,6 +7,11 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
+if (process.env.NODE_ENV === "production") {
+  console.error("db:reset is a dev-only tool and is disabled in production builds.");
+  process.exit(1);
+}
+
 const DB_DIR = path.join(process.cwd(), "db");
 const DB_PATH = path.join(DB_DIR, "clinic.db");
 const SCHEMA_PATH = path.join(DB_DIR, "schema.sql");
