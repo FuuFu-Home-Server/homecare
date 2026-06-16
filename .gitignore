@@ -4,6 +4,7 @@ out/
 build/
 dist-electron/
 release/
+.api-sidelined/
 *.log
 db/clinic.db
 db/clinic.db-journal

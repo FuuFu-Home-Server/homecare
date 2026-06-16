@@ -12,10 +12,12 @@
     "db:reset": "ELECTRON_RUN_AS_NODE=1 electron node_modules/tsx/dist/cli.mjs db/reset.ts",
     "db:seed": "ELECTRON_RUN_AS_NODE=1 electron node_modules/tsx/dist/cli.mjs db/seed.ts",
     "gen:routes": "node scripts/gen-routes.mjs",
+    "build:desktop": "node scripts/build-desktop.mjs",
     "electron:build": "npm run gen:routes && node scripts/build-electron.mjs",
     "electron:rebuild": "electron-rebuild -f -w better-sqlite3",
     "electron:launch": "npm run electron:build && wait-on tcp:3000 && electron .",
-    "electron:dev": "concurrently -k -n next,electron \"npm:dev\" \"npm:electron:launch\""
+    "electron:dev": "concurrently -k -n next,electron \"npm:dev\" \"npm:electron:launch\"",
+    "electron:preview": "npm run build:desktop && npm run electron:build && HOMEDOC_RENDERER=static electron ."
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1",

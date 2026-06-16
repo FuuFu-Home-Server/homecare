@@ -1,13 +1,9 @@
-import { notFound } from "next/navigation";
-import { ConsultView } from "@/components/rekam-medis/ConsultView";
+import { ConsultClient } from "./client";
 
-export default async function ConsultPage({
-  params,
-}: {
-  params: Promise<{ visitId: string }>;
-}) {
-  const { visitId } = await params;
-  const id = Number(visitId);
-  if (!Number.isInteger(id)) notFound();
-  return <ConsultView visitId={id} />;
+export function generateStaticParams() {
+  return [{ visitId: "_" }];
+}
+
+export default function ConsultPage() {
+  return <ConsultClient />;
 }

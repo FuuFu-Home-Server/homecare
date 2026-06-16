@@ -1,13 +1,9 @@
-import { notFound } from "next/navigation";
-import { StokDetail } from "@/components/stok/StokDetail";
+import { StokDetailClient } from "./client";
 
-export default async function StokDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const medicineId = Number(id);
-  if (!Number.isInteger(medicineId)) notFound();
-  return <StokDetail medicineId={medicineId} />;
+export function generateStaticParams() {
+  return [{ id: "_" }];
+}
+
+export default function StokDetailPage() {
+  return <StokDetailClient />;
 }

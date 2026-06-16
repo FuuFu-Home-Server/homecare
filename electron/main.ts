@@ -3,9 +3,16 @@ import path from "node:path";
 import { loadWindowState, persistWindowState } from "./window-state";
 import { enableDesktopMode } from "@/lib/request-context";
 import { registerIpc, shutdown } from "./ipc/dispatch";
+import { APP_ORIGIN, registerAppScheme, registerStaticProtocol } from "./static-protocol";
 
-const isDev = !app.isPackaged;
 const RENDERER_DEV_URL = process.env.ELECTRON_RENDERER_URL ?? "http://localhost:3000";
+const OUT_DIR = path.join(__dirname, "..", "out");
+
+// Packaged builds — and an opt-in preview (HOMEDOC_RENDERER=static) — serve the
+// static export over app://; otherwise load the next-dev server for HMR.
+const useStaticRenderer = app.isPackaged || process.env.HOMEDOC_RENDERER === "static";
+
+registerAppScheme();
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -46,11 +53,11 @@ function createWindow(): void {
     return { action: "deny" };
   });
 
-  if (isDev) {
+  if (useStaticRenderer) {
+    void mainWindow.loadURL(APP_ORIGIN);
+  } else {
     void mainWindow.loadURL(RENDERER_DEV_URL);
     mainWindow.webContents.openDevTools({ mode: "detach" });
-  } else {
-    void mainWindow.loadFile(path.join(__dirname, "../out/index.html"));
   }
 }
 
@@ -74,6 +81,7 @@ if (!gotLock) {
     }
     enableDesktopMode();
     registerIpc();
+    if (useStaticRenderer) registerStaticProtocol(OUT_DIR);
     createWindow();
   });
 
