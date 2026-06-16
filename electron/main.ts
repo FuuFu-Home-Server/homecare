@@ -1,6 +1,7 @@
 import { app, BrowserWindow, shell } from "electron";
 import path from "node:path";
 import { loadWindowState, persistWindowState } from "./window-state";
+import { enableDesktopMode } from "@/lib/request-context";
 import { registerIpc, shutdown } from "./ipc/dispatch";
 
 const isDev = !app.isPackaged;
@@ -66,6 +67,7 @@ if (!gotLock) {
 
   void app.whenReady().then(() => {
     process.env.HOMEDOC_DB_PATH = path.join(app.getPath("userData"), "clinic.db");
+    enableDesktopMode();
     registerIpc();
     createWindow();
   });

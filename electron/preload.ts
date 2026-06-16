@@ -1,25 +1,11 @@
 import { contextBridge, ipcRenderer } from "electron";
+import type { ApiRequest, ApiResponse, HomeDocBridge } from "@/types";
 
-export type ApiMethod = "GET" | "POST" | "PATCH" | "DELETE";
-
-export interface ApiRequest {
-  method: ApiMethod;
-  path: string;
-  body?: unknown;
-}
-
-export interface ApiResponse {
-  status: number;
-  data: unknown;
-}
-
-const api = {
+const api: HomeDocBridge = {
   platform: process.platform,
   invoke(request: ApiRequest): Promise<ApiResponse> {
     return ipcRenderer.invoke("api:invoke", request);
   },
 };
-
-export type HomeDocApi = typeof api;
 
 contextBridge.exposeInMainWorld("homedoc", api);

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { authService } from "@/lib/services/auth";
-import { getSession } from "@/lib/session";
+import { establishSession } from "@/lib/session";
 
 interface LoginBody {
   username: string;
@@ -26,12 +26,12 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json({ error: "Username atau password salah." }, { status: 401 });
   }
 
-  const session = await getSession();
-  session.userId = user.id;
-  session.username = user.username;
-  session.nama = user.nama;
-  session.role = user.role;
-  await session.save();
+  await establishSession({
+    userId: user.id,
+    username: user.username,
+    nama: user.nama,
+    role: user.role,
+  });
 
   return NextResponse.json({ user });
 }

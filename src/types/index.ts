@@ -552,3 +552,25 @@ export interface CashClosing {
   closedBy: number;
   closedAt: string;
 }
+
+// ===== Desktop IPC bridge =====
+// Shared contract between the Electron preload bridge, the main dispatcher, and
+// the renderer fetcher. On desktop the renderer reaches the repositories over
+// this bridge instead of HTTP.
+export type ApiMethod = "GET" | "POST" | "PATCH" | "DELETE";
+
+export interface ApiRequest {
+  method: ApiMethod;
+  path: string;
+  body?: unknown;
+}
+
+export interface ApiResponse {
+  status: number;
+  data: unknown;
+}
+
+export interface HomeDocBridge {
+  platform: string;
+  invoke(request: ApiRequest): Promise<ApiResponse>;
+}

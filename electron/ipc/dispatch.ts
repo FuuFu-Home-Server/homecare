@@ -1,10 +1,9 @@
 import { ipcMain } from "electron";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { runWithUser } from "@/lib/request-context";
+import { getCurrentSession, runWithUser } from "@/lib/request-context";
 import { policyFor } from "../rbac";
-import { getCurrentSession } from "../session-store";
-import type { ApiRequest, ApiResponse } from "../preload";
+import type { ApiRequest, ApiResponse } from "@/types";
 import type { HttpMethod, RouteEntry } from "../route-types";
 
 interface Matched {

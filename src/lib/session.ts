@@ -1,6 +1,10 @@
 import { getIronSession } from "iron-session";
 import { findUserById } from "@/lib/db/users";
-import { requestContext } from "@/lib/request-context";
+import {
+  getStoredUser,
+  isDesktop,
+  setCurrentSession,
+} from "@/lib/request-context";
 import type { SessionData } from "@/lib/request-context";
 
 export type { SessionData } from "@/lib/request-context";
@@ -27,9 +31,36 @@ export async function getSession() {
   return getIronSession<SessionData>(store, sessionOptions);
 }
 
+/**
+ * Persist a logged-in session. Desktop writes the in-process holder (no cookie);
+ * web saves the iron-session cookie. Routes call this seam, never the transport.
+ */
+export async function establishSession(data: SessionData): Promise<void> {
+  if (isDesktop()) {
+    setCurrentSession(data);
+    return;
+  }
+  const session = await getSession();
+  session.userId = data.userId;
+  session.username = data.username;
+  session.nama = data.nama;
+  session.role = data.role;
+  await session.save();
+}
+
+/** Tear down the session (logout / lock). */
+export async function destroySession(): Promise<void> {
+  if (isDesktop()) {
+    setCurrentSession(null);
+    return;
+  }
+  const session = await getSession();
+  session.destroy();
+}
+
 /** Server-side current user, or null if not logged in / session is stale. */
 export async function currentUser(): Promise<SessionData | null> {
-  const ctx = requestContext.getStore();
+  const ctx = getStoredUser();
   const session = ctx !== undefined ? ctx : await getSession();
   if (!session || !session.userId || !session.role) return null;
   // Guard against stale sessions: the reference may point at a user that no

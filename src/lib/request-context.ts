@@ -9,14 +9,55 @@ export interface SessionData {
 }
 
 /**
- * Transport-agnostic request context. Lives in its own module (no DB import) so
- * the Electron main process can pull in `runWithUser` without eagerly loading
- * better-sqlite3 at startup. The IPC dispatcher seeds this with the logged-in
- * user before invoking a route handler; `currentUser` (in session.ts) reads it,
- * falling back to the iron-session cookie on the web path.
+ * Process-wide request/session state, db-free so the Electron main process can
+ * pull it in without eagerly loading better-sqlite3.
+ *
+ * The state is pinned on globalThis because main.js and the lazily-loaded route
+ * chunk are separate esbuild bundles — each carries its own copy of this module.
+ * Sharing through globalThis makes them point at the SAME AsyncLocalStorage and
+ * session holder, so a user seeded by the dispatcher (main) is visible to
+ * `currentUser` running inside a route handler (chunk).
+ *
+ *  - als      : per-call user context; the dispatcher seeds it before invoking.
+ *  - desktop  : true under Electron; flips session reads/writes off the cookie.
+ *  - current  : the logged-in desktop session (no HTTP cookie to persist it).
  */
-export const requestContext = new AsyncLocalStorage<SessionData | null>();
+interface SharedState {
+  als: AsyncLocalStorage<SessionData | null>;
+  desktop: boolean;
+  current: SessionData | null;
+}
+
+const globalRef = globalThis as typeof globalThis & { __homedocState?: SharedState };
+
+const state: SharedState =
+  globalRef.__homedocState ??
+  (globalRef.__homedocState = {
+    als: new AsyncLocalStorage<SessionData | null>(),
+    desktop: false,
+    current: null,
+  });
 
 export function runWithUser<T>(user: SessionData | null, fn: () => T): T {
-  return requestContext.run(user, fn);
+  return state.als.run(user, fn);
+}
+
+export function getStoredUser(): SessionData | null | undefined {
+  return state.als.getStore();
+}
+
+export function enableDesktopMode(): void {
+  state.desktop = true;
+}
+
+export function isDesktop(): boolean {
+  return state.desktop;
+}
+
+export function setCurrentSession(session: SessionData | null): void {
+  state.current = session;
+}
+
+export function getCurrentSession(): SessionData | null {
+  return state.current;
 }
