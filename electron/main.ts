@@ -5,7 +5,12 @@ import { enableDesktopMode } from "@/lib/request-context";
 import { CONFIG } from "@/lib/config";
 import { autoBackup, registerIpc, shutdown } from "./ipc/dispatch";
 import { registerPrintIpc } from "./ipc/print";
+import { log } from "./logger";
 import { APP_ORIGIN, registerAppScheme, registerStaticProtocol } from "./static-protocol";
+
+// Last-resort crash trail: never let an unhandled error die silently on-device.
+process.on("uncaughtException", (err) => log("error", "uncaughtException", err));
+process.on("unhandledRejection", (reason) => log("error", "unhandledRejection", reason));
 
 const RENDERER_DEV_URL = process.env.ELECTRON_RENDERER_URL ?? "http://localhost:3000";
 const OUT_DIR = path.join(__dirname, "..", "out");
@@ -55,6 +60,10 @@ function createWindow(): void {
     return { action: "deny" };
   });
 
+  mainWindow.webContents.on("render-process-gone", (_e, details) =>
+    log("error", "render-process-gone", details),
+  );
+
   if (useStaticRenderer) {
     void mainWindow.loadURL(APP_ORIGIN);
   } else {
@@ -83,6 +92,7 @@ if (!gotLock) {
       // schema.sql ships as an extraResource (see electron-builder config).
       process.env.HOMEDOC_SCHEMA_PATH = path.join(process.resourcesPath, "schema.sql");
     }
+    log("info", `HomeDoc start (packaged=${app.isPackaged}, renderer=${useStaticRenderer ? "static" : "dev"})`);
     enableDesktopMode();
     registerIpc();
     registerPrintIpc();

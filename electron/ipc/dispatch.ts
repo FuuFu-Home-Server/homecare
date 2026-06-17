@@ -3,6 +3,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { getCurrentSession, runWithUser } from "@/lib/request-context";
 import { policyFor } from "../rbac";
+import { log } from "../logger";
 import type { ApiRequest, ApiResponse } from "@/types";
 import type { HttpMethod, RouteEntry } from "../route-types";
 
@@ -81,6 +82,7 @@ async function dispatch(req: ApiRequest): Promise<ApiResponse> {
     const data: unknown = await res.json().catch(() => null);
     return { status: res.status, data };
   } catch (e) {
+    log("error", `IPC ${req.method} ${pathname}`, e);
     return reply(500, e instanceof Error ? e.message : "Kesalahan server.");
   }
 }
@@ -101,7 +103,7 @@ export async function autoBackup(): Promise<void> {
   try {
     const { autoBackupIfDue } = await loadChunk();
     autoBackupIfDue();
-  } catch {
-    /* non-fatal: backup is best-effort */
+  } catch (e) {
+    log("warn", "autoBackup failed", e); // non-fatal: backup is best-effort
   }
 }
