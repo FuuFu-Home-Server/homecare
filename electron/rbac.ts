@@ -22,8 +22,11 @@ const PUBLIC_PATHS = new Set([
 // Note: /api/treatments is the tindakan price list read by Kasir (asisten), so
 // it is intentionally NOT perawat-only.
 const PERAWAT_PREFIXES = ["/api/records", "/api/payroll", "/api/users", "/api/backup"];
+// Clinical WRITES are perawat-only. Reads are not: GET /api/visits/[id]/consult
+// returns the rekam-medis bundle that asisten opens read-only from Pasien history,
+// so `consult` is intentionally excluded here.
 const PERAWAT_TEMPLATES = [
-  /^\/api\/visits\/\[id\]\/(soap|consult|interventions)$/,
+  /^\/api\/visits\/\[id\]\/(soap|interventions)$/,
   /^\/api\/interventions\/\[id\]$/,
 ];
 

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { findUserById, setUserPassword } from "@/lib/db/users";
+import { getMasterKey } from "@/lib/db/client";
+import { keystoreExists, putUser } from "@/lib/crypto/keystore";
 import { currentUser } from "@/lib/session";
 import { parsePassword } from "@/lib/validation/auth";
 
@@ -15,7 +17,8 @@ export async function POST(
 
   const { id } = await ctx.params;
   const targetId = Number(id);
-  if (!findUserById(targetId)) {
+  const target = findUserById(targetId);
+  if (!target) {
     return NextResponse.json({ error: "Pengguna tidak ditemukan." }, { status: 404 });
   }
 
@@ -23,5 +26,11 @@ export async function POST(
   if (typeof parsed === "string") return NextResponse.json({ error: parsed }, { status: 400 });
 
   setUserPassword(targetId, parsed.password);
+
+  // Re-wrap the target's keystore entry under the new password — otherwise the
+  // DB hash changes but their wrapped key does not, locking them out of the DB.
+  const masterKey = getMasterKey();
+  if (keystoreExists() && masterKey) putUser(masterKey, target.username, parsed.password);
+
   return NextResponse.json({ ok: true });
 }
