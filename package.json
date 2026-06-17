@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p electron/tsconfig.json",
     "db:reset": "ELECTRON_RUN_AS_NODE=1 electron node_modules/tsx/dist/cli.mjs db/reset.ts",
     "db:seed": "ELECTRON_RUN_AS_NODE=1 electron node_modules/tsx/dist/cli.mjs db/seed.ts",
+    "test": "ELECTRON_RUN_AS_NODE=1 electron --import tsx --test src/lib/fefo.test.ts src/lib/db/migrations.test.ts src/lib/db/payroll.test.ts",
     "gen:routes": "node scripts/gen-routes.mjs",
     "build:desktop": "node scripts/build-desktop.mjs",
     "electron:build": "npm run gen:routes && node scripts/build-electron.mjs",
