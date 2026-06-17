@@ -40,6 +40,10 @@ export interface AppConfig {
     /** Minimum hours between automatic backups. */
     autoIntervalHours: number;
   };
+  security: {
+    /** Auto-lock the screen after this many idle minutes. */
+    idleLockMinutes: number;
+  };
 }
 
 export const CONFIG: AppConfig = {
@@ -62,6 +66,9 @@ export const CONFIG: AppConfig = {
   lowStockThreshold: 20,
   defaultPageSize: 10,
   pageSizeOptions: [10, 25, 50],
+  security: {
+    idleLockMinutes: 15,
+  },
   backup: {
     keepLast: 14,
     autoIntervalHours: 24,

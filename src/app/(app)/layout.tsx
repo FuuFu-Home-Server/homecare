@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { getJson } from "@/lib/fetcher";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ClinicProvider } from "@/hooks/useClinic";
+import { LockProvider } from "@/hooks/useLock";
 import { AppShell } from "@/components/layout/AppShell";
 import type { AuthUser } from "@/hooks/useAuth";
 import type { ClinicConfig } from "@/lib/config";
@@ -66,7 +67,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider initialUser={user}>
       <ClinicProvider clinic={clinic}>
-        <AppShell>{children}</AppShell>
+        <LockProvider>
+          <AppShell>{children}</AppShell>
+        </LockProvider>
       </ClinicProvider>
     </AuthProvider>
   );

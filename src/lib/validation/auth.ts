@@ -18,6 +18,14 @@ export function parsePassword(data: unknown): { password: string } | string {
   return parse(passwordSchema, data);
 }
 
+const unlockSchema = z.object({
+  password: z.string({ error: "Password wajib diisi." }).min(1, "Password wajib diisi."),
+});
+
+export function parseUnlock(data: unknown): { password: string } | string {
+  return parse(unlockSchema, data);
+}
+
 const accountSchema = z
   .object({
     nama: reqText("Nama wajib diisi."),

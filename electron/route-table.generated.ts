@@ -5,38 +5,39 @@ import { PATCH as h0_PATCH } from "@/app/api/account/route";
 import { POST as h1_POST } from "@/app/api/auth/login/route";
 import { POST as h2_POST } from "@/app/api/auth/logout/route";
 import { GET as h3_GET } from "@/app/api/auth/me/route";
-import { GET as h4_GET, POST as h4_POST } from "@/app/api/backup/route";
-import { POST as h5_POST } from "@/app/api/backup/restore/route";
-import { POST as h6_POST } from "@/app/api/batches/[id]/adjust/route";
-import { GET as h7_GET, PATCH as h7_PATCH } from "@/app/api/bills/[id]/route";
-import { POST as h8_POST } from "@/app/api/bills/[id]/items/route";
-import { DELETE as h9_DELETE } from "@/app/api/bills/[id]/items/[itemId]/route";
-import { POST as h10_POST } from "@/app/api/bills/[id]/pay/route";
-import { GET as h11_GET, PATCH as h11_PATCH } from "@/app/api/clinic/route";
-import { GET as h12_GET, PATCH as h12_PATCH } from "@/app/api/clinic/schedule/route";
-import { GET as h13_GET } from "@/app/api/dashboard/route";
-import { DELETE as h14_DELETE } from "@/app/api/interventions/[id]/route";
-import { GET as h15_GET } from "@/app/api/kasir/route";
-import { GET as h16_GET, POST as h16_POST } from "@/app/api/medicines/route";
-import { GET as h17_GET } from "@/app/api/medicines/[id]/route";
-import { POST as h18_POST } from "@/app/api/medicines/[id]/batches/route";
-import { GET as h19_GET, POST as h19_POST } from "@/app/api/patients/route";
-import { GET as h20_GET, PATCH as h20_PATCH, DELETE as h20_DELETE } from "@/app/api/patients/[id]/route";
-import { GET as h21_GET, POST as h21_POST, DELETE as h21_DELETE } from "@/app/api/payroll/route";
-import { GET as h22_GET } from "@/app/api/records/export/route";
-import { GET as h23_GET } from "@/app/api/reports/route";
-import { GET as h24_GET } from "@/app/api/treatments/route";
-import { GET as h25_GET, POST as h25_POST } from "@/app/api/users/route";
-import { PATCH as h26_PATCH, DELETE as h26_DELETE } from "@/app/api/users/[id]/route";
-import { POST as h27_POST } from "@/app/api/users/[id]/password/route";
-import { GET as h28_GET, POST as h28_POST } from "@/app/api/visits/route";
-import { PATCH as h29_PATCH } from "@/app/api/visits/[id]/route";
-import { GET as h30_GET } from "@/app/api/visits/[id]/bill/route";
-import { GET as h31_GET } from "@/app/api/visits/[id]/consult/route";
-import { POST as h32_POST } from "@/app/api/visits/[id]/dispense/route";
-import { POST as h33_POST } from "@/app/api/visits/[id]/interventions/route";
-import { POST as h34_POST } from "@/app/api/visits/[id]/soap/route";
-import { POST as h35_POST } from "@/app/api/visits/[id]/vitals/route";
+import { POST as h4_POST } from "@/app/api/auth/unlock/route";
+import { GET as h5_GET, POST as h5_POST } from "@/app/api/backup/route";
+import { POST as h6_POST } from "@/app/api/backup/restore/route";
+import { POST as h7_POST } from "@/app/api/batches/[id]/adjust/route";
+import { GET as h8_GET, PATCH as h8_PATCH } from "@/app/api/bills/[id]/route";
+import { POST as h9_POST } from "@/app/api/bills/[id]/items/route";
+import { DELETE as h10_DELETE } from "@/app/api/bills/[id]/items/[itemId]/route";
+import { POST as h11_POST } from "@/app/api/bills/[id]/pay/route";
+import { GET as h12_GET, PATCH as h12_PATCH } from "@/app/api/clinic/route";
+import { GET as h13_GET, PATCH as h13_PATCH } from "@/app/api/clinic/schedule/route";
+import { GET as h14_GET } from "@/app/api/dashboard/route";
+import { DELETE as h15_DELETE } from "@/app/api/interventions/[id]/route";
+import { GET as h16_GET } from "@/app/api/kasir/route";
+import { GET as h17_GET, POST as h17_POST } from "@/app/api/medicines/route";
+import { GET as h18_GET } from "@/app/api/medicines/[id]/route";
+import { POST as h19_POST } from "@/app/api/medicines/[id]/batches/route";
+import { GET as h20_GET, POST as h20_POST } from "@/app/api/patients/route";
+import { GET as h21_GET, PATCH as h21_PATCH, DELETE as h21_DELETE } from "@/app/api/patients/[id]/route";
+import { GET as h22_GET, POST as h22_POST, DELETE as h22_DELETE } from "@/app/api/payroll/route";
+import { GET as h23_GET } from "@/app/api/records/export/route";
+import { GET as h24_GET } from "@/app/api/reports/route";
+import { GET as h25_GET } from "@/app/api/treatments/route";
+import { GET as h26_GET, POST as h26_POST } from "@/app/api/users/route";
+import { PATCH as h27_PATCH, DELETE as h27_DELETE } from "@/app/api/users/[id]/route";
+import { POST as h28_POST } from "@/app/api/users/[id]/password/route";
+import { GET as h29_GET, POST as h29_POST } from "@/app/api/visits/route";
+import { PATCH as h30_PATCH } from "@/app/api/visits/[id]/route";
+import { GET as h31_GET } from "@/app/api/visits/[id]/bill/route";
+import { GET as h32_GET } from "@/app/api/visits/[id]/consult/route";
+import { POST as h33_POST } from "@/app/api/visits/[id]/dispense/route";
+import { POST as h34_POST } from "@/app/api/visits/[id]/interventions/route";
+import { POST as h35_POST } from "@/app/api/visits/[id]/soap/route";
+import { POST as h36_POST } from "@/app/api/visits/[id]/vitals/route";
 
 export { closeDb } from "@/lib/db/client";
 export { autoBackupIfDue } from "@/lib/db/backup";
@@ -67,195 +68,201 @@ export const ROUTES: RouteEntry[] = [
     handlers: { GET: toRouteHandler(h3_GET) },
   },
   {
+    routePath: "/api/auth/unlock",
+    regex: new RegExp("^/api/auth/unlock$"),
+    paramNames: [],
+    handlers: { POST: toRouteHandler(h4_POST) },
+  },
+  {
     routePath: "/api/backup",
     regex: new RegExp("^/api/backup$"),
     paramNames: [],
-    handlers: { GET: toRouteHandler(h4_GET), POST: toRouteHandler(h4_POST) },
+    handlers: { GET: toRouteHandler(h5_GET), POST: toRouteHandler(h5_POST) },
   },
   {
     routePath: "/api/backup/restore",
     regex: new RegExp("^/api/backup/restore$"),
     paramNames: [],
-    handlers: { POST: toRouteHandler(h5_POST) },
+    handlers: { POST: toRouteHandler(h6_POST) },
   },
   {
     routePath: "/api/batches/[id]/adjust",
     regex: new RegExp("^/api/batches/([^/]+)/adjust$"),
     paramNames: ["id"],
-    handlers: { POST: toRouteHandler(h6_POST) },
+    handlers: { POST: toRouteHandler(h7_POST) },
   },
   {
     routePath: "/api/bills/[id]",
     regex: new RegExp("^/api/bills/([^/]+)$"),
     paramNames: ["id"],
-    handlers: { GET: toRouteHandler(h7_GET), PATCH: toRouteHandler(h7_PATCH) },
+    handlers: { GET: toRouteHandler(h8_GET), PATCH: toRouteHandler(h8_PATCH) },
   },
   {
     routePath: "/api/bills/[id]/items",
     regex: new RegExp("^/api/bills/([^/]+)/items$"),
     paramNames: ["id"],
-    handlers: { POST: toRouteHandler(h8_POST) },
+    handlers: { POST: toRouteHandler(h9_POST) },
   },
   {
     routePath: "/api/bills/[id]/items/[itemId]",
     regex: new RegExp("^/api/bills/([^/]+)/items/([^/]+)$"),
     paramNames: ["id", "itemId"],
-    handlers: { DELETE: toRouteHandler(h9_DELETE) },
+    handlers: { DELETE: toRouteHandler(h10_DELETE) },
   },
   {
     routePath: "/api/bills/[id]/pay",
     regex: new RegExp("^/api/bills/([^/]+)/pay$"),
     paramNames: ["id"],
-    handlers: { POST: toRouteHandler(h10_POST) },
+    handlers: { POST: toRouteHandler(h11_POST) },
   },
   {
     routePath: "/api/clinic",
     regex: new RegExp("^/api/clinic$"),
     paramNames: [],
-    handlers: { GET: toRouteHandler(h11_GET), PATCH: toRouteHandler(h11_PATCH) },
+    handlers: { GET: toRouteHandler(h12_GET), PATCH: toRouteHandler(h12_PATCH) },
   },
   {
     routePath: "/api/clinic/schedule",
     regex: new RegExp("^/api/clinic/schedule$"),
     paramNames: [],
-    handlers: { GET: toRouteHandler(h12_GET), PATCH: toRouteHandler(h12_PATCH) },
+    handlers: { GET: toRouteHandler(h13_GET), PATCH: toRouteHandler(h13_PATCH) },
   },
   {
     routePath: "/api/dashboard",
     regex: new RegExp("^/api/dashboard$"),
     paramNames: [],
-    handlers: { GET: toRouteHandler(h13_GET) },
+    handlers: { GET: toRouteHandler(h14_GET) },
   },
   {
     routePath: "/api/interventions/[id]",
     regex: new RegExp("^/api/interventions/([^/]+)$"),
     paramNames: ["id"],
-    handlers: { DELETE: toRouteHandler(h14_DELETE) },
+    handlers: { DELETE: toRouteHandler(h15_DELETE) },
   },
   {
     routePath: "/api/kasir",
     regex: new RegExp("^/api/kasir$"),
     paramNames: [],
-    handlers: { GET: toRouteHandler(h15_GET) },
+    handlers: { GET: toRouteHandler(h16_GET) },
   },
   {
     routePath: "/api/medicines",
     regex: new RegExp("^/api/medicines$"),
     paramNames: [],
-    handlers: { GET: toRouteHandler(h16_GET), POST: toRouteHandler(h16_POST) },
+    handlers: { GET: toRouteHandler(h17_GET), POST: toRouteHandler(h17_POST) },
   },
   {
     routePath: "/api/medicines/[id]",
     regex: new RegExp("^/api/medicines/([^/]+)$"),
     paramNames: ["id"],
-    handlers: { GET: toRouteHandler(h17_GET) },
+    handlers: { GET: toRouteHandler(h18_GET) },
   },
   {
     routePath: "/api/medicines/[id]/batches",
     regex: new RegExp("^/api/medicines/([^/]+)/batches$"),
     paramNames: ["id"],
-    handlers: { POST: toRouteHandler(h18_POST) },
+    handlers: { POST: toRouteHandler(h19_POST) },
   },
   {
     routePath: "/api/patients",
     regex: new RegExp("^/api/patients$"),
     paramNames: [],
-    handlers: { GET: toRouteHandler(h19_GET), POST: toRouteHandler(h19_POST) },
+    handlers: { GET: toRouteHandler(h20_GET), POST: toRouteHandler(h20_POST) },
   },
   {
     routePath: "/api/patients/[id]",
     regex: new RegExp("^/api/patients/([^/]+)$"),
     paramNames: ["id"],
-    handlers: { GET: toRouteHandler(h20_GET), PATCH: toRouteHandler(h20_PATCH), DELETE: toRouteHandler(h20_DELETE) },
+    handlers: { GET: toRouteHandler(h21_GET), PATCH: toRouteHandler(h21_PATCH), DELETE: toRouteHandler(h21_DELETE) },
   },
   {
     routePath: "/api/payroll",
     regex: new RegExp("^/api/payroll$"),
     paramNames: [],
-    handlers: { GET: toRouteHandler(h21_GET), POST: toRouteHandler(h21_POST), DELETE: toRouteHandler(h21_DELETE) },
+    handlers: { GET: toRouteHandler(h22_GET), POST: toRouteHandler(h22_POST), DELETE: toRouteHandler(h22_DELETE) },
   },
   {
     routePath: "/api/records/export",
     regex: new RegExp("^/api/records/export$"),
     paramNames: [],
-    handlers: { GET: toRouteHandler(h22_GET) },
+    handlers: { GET: toRouteHandler(h23_GET) },
   },
   {
     routePath: "/api/reports",
     regex: new RegExp("^/api/reports$"),
     paramNames: [],
-    handlers: { GET: toRouteHandler(h23_GET) },
+    handlers: { GET: toRouteHandler(h24_GET) },
   },
   {
     routePath: "/api/treatments",
     regex: new RegExp("^/api/treatments$"),
     paramNames: [],
-    handlers: { GET: toRouteHandler(h24_GET) },
+    handlers: { GET: toRouteHandler(h25_GET) },
   },
   {
     routePath: "/api/users",
     regex: new RegExp("^/api/users$"),
     paramNames: [],
-    handlers: { GET: toRouteHandler(h25_GET), POST: toRouteHandler(h25_POST) },
+    handlers: { GET: toRouteHandler(h26_GET), POST: toRouteHandler(h26_POST) },
   },
   {
     routePath: "/api/users/[id]",
     regex: new RegExp("^/api/users/([^/]+)$"),
     paramNames: ["id"],
-    handlers: { PATCH: toRouteHandler(h26_PATCH), DELETE: toRouteHandler(h26_DELETE) },
+    handlers: { PATCH: toRouteHandler(h27_PATCH), DELETE: toRouteHandler(h27_DELETE) },
   },
   {
     routePath: "/api/users/[id]/password",
     regex: new RegExp("^/api/users/([^/]+)/password$"),
     paramNames: ["id"],
-    handlers: { POST: toRouteHandler(h27_POST) },
+    handlers: { POST: toRouteHandler(h28_POST) },
   },
   {
     routePath: "/api/visits",
     regex: new RegExp("^/api/visits$"),
     paramNames: [],
-    handlers: { GET: toRouteHandler(h28_GET), POST: toRouteHandler(h28_POST) },
+    handlers: { GET: toRouteHandler(h29_GET), POST: toRouteHandler(h29_POST) },
   },
   {
     routePath: "/api/visits/[id]",
     regex: new RegExp("^/api/visits/([^/]+)$"),
     paramNames: ["id"],
-    handlers: { PATCH: toRouteHandler(h29_PATCH) },
+    handlers: { PATCH: toRouteHandler(h30_PATCH) },
   },
   {
     routePath: "/api/visits/[id]/bill",
     regex: new RegExp("^/api/visits/([^/]+)/bill$"),
     paramNames: ["id"],
-    handlers: { GET: toRouteHandler(h30_GET) },
+    handlers: { GET: toRouteHandler(h31_GET) },
   },
   {
     routePath: "/api/visits/[id]/consult",
     regex: new RegExp("^/api/visits/([^/]+)/consult$"),
     paramNames: ["id"],
-    handlers: { GET: toRouteHandler(h31_GET) },
+    handlers: { GET: toRouteHandler(h32_GET) },
   },
   {
     routePath: "/api/visits/[id]/dispense",
     regex: new RegExp("^/api/visits/([^/]+)/dispense$"),
     paramNames: ["id"],
-    handlers: { POST: toRouteHandler(h32_POST) },
+    handlers: { POST: toRouteHandler(h33_POST) },
   },
   {
     routePath: "/api/visits/[id]/interventions",
     regex: new RegExp("^/api/visits/([^/]+)/interventions$"),
     paramNames: ["id"],
-    handlers: { POST: toRouteHandler(h33_POST) },
+    handlers: { POST: toRouteHandler(h34_POST) },
   },
   {
     routePath: "/api/visits/[id]/soap",
     regex: new RegExp("^/api/visits/([^/]+)/soap$"),
     paramNames: ["id"],
-    handlers: { POST: toRouteHandler(h34_POST) },
+    handlers: { POST: toRouteHandler(h35_POST) },
   },
   {
     routePath: "/api/visits/[id]/vitals",
     regex: new RegExp("^/api/visits/([^/]+)/vitals$"),
     paramNames: ["id"],
-    handlers: { POST: toRouteHandler(h35_POST) },
+    handlers: { POST: toRouteHandler(h36_POST) },
   },
 ];
