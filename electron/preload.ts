@@ -6,6 +6,12 @@ const api: HomeDocBridge = {
   invoke(request: ApiRequest): Promise<ApiResponse> {
     return ipcRenderer.invoke("api:invoke", request);
   },
+  print(): Promise<void> {
+    return ipcRenderer.invoke("print:now");
+  },
+  printToPdf(filename: string): Promise<boolean> {
+    return ipcRenderer.invoke("print:pdf", filename);
+  },
 };
 
 contextBridge.exposeInMainWorld("homedoc", api);

@@ -4,6 +4,7 @@ import { loadWindowState, persistWindowState } from "./window-state";
 import { enableDesktopMode } from "@/lib/request-context";
 import { CONFIG } from "@/lib/config";
 import { autoBackup, registerIpc, shutdown } from "./ipc/dispatch";
+import { registerPrintIpc } from "./ipc/print";
 import { APP_ORIGIN, registerAppScheme, registerStaticProtocol } from "./static-protocol";
 
 const RENDERER_DEV_URL = process.env.ELECTRON_RENDERER_URL ?? "http://localhost:3000";
@@ -84,6 +85,7 @@ if (!gotLock) {
     }
     enableDesktopMode();
     registerIpc();
+    registerPrintIpc();
     if (useStaticRenderer) registerStaticProtocol(OUT_DIR);
     createWindow();
 

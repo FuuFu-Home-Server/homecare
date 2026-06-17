@@ -10,6 +10,7 @@ import { CustomSelect } from "@/components/ui/CustomSelect";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { DataTable } from "@/components/ui/DataTable";
+import { printDocument } from "@/lib/print";
 import type { Column } from "@/components/ui/DataTable";
 import { RevenueChart, VisitChart } from "@/components/dashboard/TrendChart";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -65,7 +66,7 @@ export function LaporanView() {
               options={months}
               className="w-44"
             />
-            <Button variant="secondary" leftIcon={<IconPrint className="h-4 w-4" />} onClick={() => window.print()}>
+            <Button variant="secondary" leftIcon={<IconPrint className="h-4 w-4" />} onClick={() => void printDocument()}>
               Cetak / PDF
             </Button>
           </div>

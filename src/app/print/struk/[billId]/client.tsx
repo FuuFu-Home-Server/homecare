@@ -55,7 +55,7 @@ export function StrukClient() {
         <Link href="/kasir" className="text-sm text-slate-500 hover:text-slate-700">
           ← Kembali
         </Link>
-        <PrintButton label="Cetak Struk" />
+        <PrintButton label="Cetak Struk" pdfName={`struk-${String(bill.id).padStart(5, "0")}.pdf`} />
       </div>
 
       <div className="print-sheet mx-auto max-w-[80mm] bg-white p-5 text-[13px] leading-relaxed text-slate-800 shadow-sm print:shadow-none">

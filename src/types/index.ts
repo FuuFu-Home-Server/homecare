@@ -573,4 +573,8 @@ export interface ApiResponse {
 export interface HomeDocBridge {
   platform: string;
   invoke(request: ApiRequest): Promise<ApiResponse>;
+  /** Open the OS print dialog for the current document (physical or save-as-PDF). */
+  print(): Promise<void>;
+  /** Render the document to PDF and prompt for a save location. Returns saved. */
+  printToPdf(filename: string): Promise<boolean>;
 }
