@@ -14,7 +14,7 @@
     "gen:routes": "node scripts/gen-routes.mjs",
     "build:desktop": "node scripts/build-desktop.mjs",
     "electron:build": "npm run gen:routes && node scripts/build-electron.mjs",
-    "electron:rebuild": "electron-rebuild -f -w better-sqlite3",
+    "electron:rebuild": "electron-rebuild -f -w better-sqlite3-multiple-ciphers",
     "electron:launch": "npm run electron:build && wait-on tcp:3000 && electron .",
     "electron:dev": "concurrently -k -n next,electron \"npm:dev\" \"npm:electron:launch\"",
     "electron:preview": "npm run build:desktop && npm run electron:build && HOMEDOC_RENDERER=static electron ."
@@ -22,6 +22,7 @@
   "dependencies": {
     "@node-rs/argon2": "^2.0.2",
     "better-sqlite3": "^11.8.1",
+    "better-sqlite3-multiple-ciphers": "^12.10.0",
     "exceljs": "^4.4.0",
     "iron-session": "^8.0.4",
     "next": "^16.2.9",

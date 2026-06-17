@@ -9,7 +9,7 @@ import type { NextConfig } from "next";
 const desktop = process.env.BUILD_TARGET === "desktop";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["better-sqlite3"],
+  serverExternalPackages: ["better-sqlite3-multiple-ciphers"],
   ...(desktop
     ? { output: "export", trailingSlash: true, images: { unoptimized: true } }
     : {}),

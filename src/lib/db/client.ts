@@ -1,16 +1,41 @@
-import Database from "better-sqlite3";
+import Database from "better-sqlite3-multiple-ciphers";
 import fs from "node:fs";
 import path from "node:path";
 
 /**
- * Single better-sqlite3 connection for the whole app.
- * better-sqlite3 is synchronous, so no pooling/async ceremony is needed.
- * This is the ONLY place the raw Database handle is constructed; every query
- * lives in a sibling repository module (patients.ts, inventory.ts, ...).
+ * Single SQLite connection for the whole app (SQLCipher-capable driver, same
+ * synchronous better-sqlite3 API). This is the ONLY place the raw Database
+ * handle is constructed; every query lives in a sibling repository module.
+ *
+ * Encryption: when a master key is set (after login/setup), the connection is
+ * opened with `PRAGMA key` so the on-disk file is encrypted. With no key the DB
+ * opens as plaintext (dev / pre-encryption), so existing behaviour is preserved.
  */
 
 /** Bump when a migration is appended to MIGRATIONS. Fresh DBs jump straight here. */
 const SCHEMA_VERSION = 1;
+
+/** Hex-encoded 32-byte DB master key, held in memory for the unlocked session. */
+let masterKeyHex: string | null = null;
+
+/** Set after the keystore is unlocked (login) or created (setup). */
+export function setMasterKey(key: Buffer): void {
+  masterKeyHex = key.toString("hex");
+}
+
+export function hasMasterKey(): boolean {
+  return masterKeyHex !== null;
+}
+
+/** Drop the key and close the handle (logout / app lockout). */
+export function clearMasterKey(): void {
+  closeDb();
+  masterKeyHex = null;
+}
+
+function applyKey(db: Database.Database): void {
+  if (masterKeyHex) db.pragma(`key = "x'${masterKeyHex}'"`);
+}
 
 /**
  * DB location resolves lazily so the Electron main process can point at the OS
@@ -39,12 +64,25 @@ let instance: Database.Database | null = null;
 export function getDb(): Database.Database {
   if (instance) return instance;
   const db = new Database(resolveDbPath());
+  applyKey(db); // PRAGMA key must come before any other access on an encrypted DB
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");
   db.pragma("busy_timeout = 5000");
   migrate(db);
   instance = db;
   return db;
+}
+
+/**
+ * Encrypt an existing plaintext DB file in place (one-time, at setup). Opens the
+ * file with no key and rekeys it to the master key. Caller must hold no open
+ * handle (we close first).
+ */
+export function encryptDatabase(key: Buffer): void {
+  closeDb();
+  const db = new Database(resolveDbPath());
+  db.pragma(`rekey = "x'${key.toString("hex")}'"`);
+  db.close();
 }
 
 /** Flush WAL and release the handle. Called from Electron main on quit. */

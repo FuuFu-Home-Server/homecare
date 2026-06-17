@@ -5,7 +5,7 @@
  * Run via `npm run db:seed` (assumes schema already applied) or as part of
  * `npm run db:reset` which drops + recreates the file first.
  */
-import Database from "better-sqlite3";
+import Database from "better-sqlite3-multiple-ciphers";
 import { fakerID_ID as faker } from "@faker-js/faker";
 import { hashSync } from "@node-rs/argon2";
 import path from "node:path";

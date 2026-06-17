@@ -2,7 +2,7 @@
  * One-command demo reset: drop the DB file, recreate from schema.sql, reseed.
  * `npm run db:reset`
  */
-import Database from "better-sqlite3";
+import Database from "better-sqlite3-multiple-ciphers";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
