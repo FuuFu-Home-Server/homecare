@@ -120,7 +120,7 @@ Audit found **19/20 pages are Server Components**; 5 read `lib/db` during SSR. S
 9. Locked: auto-update host = **GitHub Releases**; build = **unsigned** (SmartScreen "Run anyway").
 
 ## Known gaps to revisit (post step-2)
-- **Some desktop features missing under preview** (reported after electron:preview). Prime suspects: RBAC over-restriction in `electron/rbac.ts` (e.g. `/api/treatments` marked perawat-only but asisten/kasir may need it → 403) — finalize the policy table in step 4; print-to-PDF pipeline (step 5). User to enumerate the missing features; revisit before step 2 sign-off / during step 4.
+- **Some desktop features missing under preview** — **RESOLVED (8a).** Root cause: asisten opening a patient's visit history (Pasien → Riwayat Kunjungan) hit perawat-only `GET /api/visits/[id]/consult` via `RekamMedisModal` → 403. Decision (locked): asisten **can read** the rekam-medis bundle (writes stay perawat). `consult` removed from `PERAWAT_TEMPLATES`. Also fixed an unrelated keystore desync: admin password reset (`users/[id]/password`) now re-wraps the target's key. `/api/treatments` was already correctly excluded from perawat-only.
 
 ## Decisions (locked 2026-06-16)
 1. **OS target — Windows only.** electron-builder NSIS target; macOS/Linux out of scope.
