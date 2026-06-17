@@ -20,10 +20,18 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22 # @electron/rebuild needs >=22.12; native rebuild for electron
           cache: npm
 
+      # windows-latest ships Python 3.12 which dropped distutils → node-gyp source
+      # builds of better-sqlite3-multiple-ciphers fail. Pin 3.11.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
       - run: npm ci
+        env:
+          npm_config_msvs_version: "2022"
 
       # build:desktop (static export) + electron:build (esbuild) + electron-builder
       # --win --publish always. GH_TOKEN is the auto-provided Actions token.
