@@ -35,6 +35,13 @@ The running app checks for updates on launch, downloads in the background, and
 installs the new version on quit. Update checks are best-effort: an offline
 clinic is never blocked.
 
+> **Note (CJS interop):** esbuild externalizes deps and bundles the main process
+> as CJS. `electron-updater` ships `__esModule` with no `default` export, so a
+> default import + `.default` destructure resolves to `undefined` and crashes the
+> packaged app on launch (`Cannot destructure property 'autoUpdater'`). Always use
+> a **named import** (`import { autoUpdater } from "electron-updater"`). Same rule
+> for any external CJS dep imported in `electron/*`.
+
 ## Code signing
 
 The build is **unsigned**. On first run Windows SmartScreen shows
