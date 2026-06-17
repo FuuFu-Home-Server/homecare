@@ -1,15 +1,7 @@
 import { NextResponse } from "next/server";
 import { getQueueEntry, updateStatus } from "@/lib/db/queue";
 import { currentUser } from "@/lib/session";
-import type { AntrianStatus } from "@/types";
-
-const STATUSES: ReadonlyArray<AntrianStatus> = ["terdaftar", "tiba", "diperiksa", "selesai", "batal"];
-
-function parseStatus(data: unknown): AntrianStatus | null {
-  if (typeof data !== "object" || data === null || !("status" in data)) return null;
-  const { status } = data;
-  return STATUSES.find((s) => s === status) ?? null;
-}
+import { parseStatus } from "@/lib/validation/visit";
 
 export async function PATCH(
   request: Request,
@@ -24,7 +16,7 @@ export async function PATCH(
     return NextResponse.json({ error: "Kunjungan tidak ditemukan." }, { status: 404 });
   }
   const status = parseStatus(await request.json().catch(() => null));
-  if (!status) return NextResponse.json({ error: "Status tidak valid." }, { status: 400 });
+  if (typeof status === "string") return NextResponse.json({ error: status }, { status: 400 });
 
   updateStatus(visitId, status);
   return NextResponse.json({ entry: getQueueEntry(visitId) });

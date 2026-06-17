@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { addTindakan, getBillById, getBillItems } from "@/lib/db/billing";
 import { currentUser } from "@/lib/session";
+import { parseBillItem } from "@/lib/validation/billing";
 
 export async function POST(
   request: Request,
@@ -17,15 +18,9 @@ export async function POST(
     return NextResponse.json({ error: "Tagihan sudah lunas." }, { status: 409 });
   }
 
-  const data: unknown = await request.json().catch(() => null);
-  if (typeof data !== "object" || data === null || !("treatmentId" in data)) {
-    return NextResponse.json({ error: "Tindakan tidak valid." }, { status: 400 });
-  }
-  const { treatmentId } = data;
-  if (typeof treatmentId !== "number" || !Number.isInteger(treatmentId)) {
-    return NextResponse.json({ error: "Tindakan tidak valid." }, { status: 400 });
-  }
+  const parsed = parseBillItem(await request.json().catch(() => null));
+  if (typeof parsed === "string") return NextResponse.json({ error: parsed }, { status: 400 });
 
-  addTindakan(billId, treatmentId);
+  addTindakan(billId, parsed.treatmentId);
   return NextResponse.json({ items: getBillItems(billId), bill: getBillById(billId) }, { status: 201 });
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createBooking, getAllRecords, getClinicalQueue, getQueueByDate } from "@/lib/db/queue";
 import { getPatient } from "@/lib/db/patients";
 import { currentUser } from "@/lib/session";
+import { parseBooking } from "@/lib/validation/visit";
 import { todayWIB } from "@/lib/format";
 
 export async function GET(request: Request): Promise<NextResponse> {
@@ -15,21 +16,6 @@ export async function GET(request: Request): Promise<NextResponse> {
         ? getClinicalQueue(tanggal)
         : getQueueByDate(tanggal);
   return NextResponse.json({ queue });
-}
-
-function parseBooking(data: unknown): { patientId: number; keluhan: string | null } | string {
-  if (typeof data !== "object" || data === null || !("patientId" in data)) {
-    return "Pasien wajib dipilih.";
-  }
-  const { patientId } = data;
-  if (typeof patientId !== "number" || !Number.isInteger(patientId)) {
-    return "Pasien tidak valid.";
-  }
-  const keluhan =
-    "keluhan" in data && typeof data.keluhan === "string" && data.keluhan.trim() !== ""
-      ? data.keluhan.trim()
-      : null;
-  return { patientId, keluhan };
 }
 
 export async function POST(request: Request): Promise<NextResponse> {

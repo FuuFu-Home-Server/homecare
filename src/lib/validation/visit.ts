@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { optNum, optText, parse, reqText } from "@/lib/validation/common";
-import type { InterventionKategori, SoapInput, VitalsInput } from "@/types";
+import { numLike, optNum, optText, parse, reqText } from "@/lib/validation/common";
+import type { AntrianStatus, InterventionKategori, SoapInput, VitalsInput } from "@/types";
 
 const vitalsSchema = z.object({
   keluhanUtama: reqText("Keluhan utama wajib diisi."),
@@ -47,3 +47,25 @@ export function parseIntervention(
 export function parseSoap(data: unknown): SoapInput | string {
   return parse(soapSchema, data);
 }
+
+const bookingSchema = z.object({
+  patientId: numLike(z.number({ error: "Pasien wajib dipilih." }).int("Pasien tidak valid.")),
+  keluhan: optText,
+});
+
+export function parseBooking(data: unknown): { patientId: number; keluhan: string | null } | string {
+  return parse(bookingSchema, data);
+}
+
+const statusSchema = z
+  .object({
+    status: z.enum(["terdaftar", "tiba", "diperiksa", "selesai", "batal"], {
+      error: "Status tidak valid.",
+    }),
+  })
+  .transform((o): AntrianStatus => o.status);
+
+export function parseStatus(data: unknown): AntrianStatus | string {
+  return parse(statusSchema, data);
+}
+

@@ -25,6 +25,13 @@ export const optEnum = <T extends string>(values: readonly [T, ...T[]]) =>
 export const intMin = (min: number, message: string) =>
   z.number({ error: message }).int(message).min(min, message);
 
+/** Coerce number-or-numeric-string into a number (NaN if not), then apply schema. */
+export const numLike = <S extends z.ZodType>(schema: S) =>
+  z.preprocess(
+    (v) => (typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" ? Number(v) : NaN),
+    schema,
+  );
+
 /** Optional number: accepts number or numeric string; empty / invalid → null. */
 export const optNum = z.preprocess((v) => {
   if (typeof v === "number" && Number.isFinite(v)) return v;

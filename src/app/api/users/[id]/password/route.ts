@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { findUserById, setUserPassword } from "@/lib/db/users";
 import { currentUser } from "@/lib/session";
+import { parsePassword } from "@/lib/validation/auth";
 
 export async function POST(
   request: Request,
@@ -18,15 +19,9 @@ export async function POST(
     return NextResponse.json({ error: "Pengguna tidak ditemukan." }, { status: 404 });
   }
 
-  const data: unknown = await request.json().catch(() => null);
-  const password =
-    typeof data === "object" && data !== null && "password" in data && typeof data.password === "string"
-      ? data.password
-      : "";
-  if (password.length < 4) {
-    return NextResponse.json({ error: "Password minimal 4 karakter." }, { status: 400 });
-  }
+  const parsed = parsePassword(await request.json().catch(() => null));
+  if (typeof parsed === "string") return NextResponse.json({ error: parsed }, { status: 400 });
 
-  setUserPassword(targetId, password);
+  setUserPassword(targetId, parsed.password);
   return NextResponse.json({ ok: true });
 }

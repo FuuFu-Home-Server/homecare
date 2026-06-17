@@ -3,6 +3,7 @@ import { getBillById, getBillItems, setDiskon } from "@/lib/db/billing";
 import { getVisit } from "@/lib/db/queue";
 import { getPatient } from "@/lib/db/patients";
 import { currentUser } from "@/lib/session";
+import { parseDiskon } from "@/lib/validation/billing";
 
 export async function GET(
   _request: Request,
@@ -37,16 +38,10 @@ export async function PATCH(
     return NextResponse.json({ error: "Tagihan sudah lunas." }, { status: 409 });
   }
 
-  const data: unknown = await request.json().catch(() => null);
-  if (typeof data !== "object" || data === null || !("diskon" in data)) {
-    return NextResponse.json({ error: "Diskon tidak valid." }, { status: 400 });
-  }
-  const { diskon } = data;
-  if (typeof diskon !== "number" || diskon < 0) {
-    return NextResponse.json({ error: "Diskon tidak valid." }, { status: 400 });
-  }
+  const parsed = parseDiskon(await request.json().catch(() => null));
+  if (typeof parsed === "string") return NextResponse.json({ error: parsed }, { status: 400 });
 
-  setDiskon(billId, Math.round(diskon));
+  setDiskon(billId, Math.round(parsed.diskon));
   const updated = getBillById(billId);
   return NextResponse.json({ bill: updated, items: getBillItems(billId) });
 }

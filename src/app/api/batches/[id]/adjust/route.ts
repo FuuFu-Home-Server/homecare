@@ -1,15 +1,7 @@
 import { NextResponse } from "next/server";
 import { adjustBatch } from "@/lib/db/inventory";
 import { currentUser } from "@/lib/session";
-
-function parse(data: unknown): { delta: number; alasan: string } | string {
-  if (typeof data !== "object" || data === null) return "Data tidak valid.";
-  const rec: Record<string, unknown> = Object.fromEntries(Object.entries(data));
-  const delta = typeof rec.delta === "number" ? rec.delta : Number(rec.delta);
-  if (!Number.isInteger(delta) || delta === 0) return "Jumlah penyesuaian tidak valid.";
-  const alasan = typeof rec.alasan === "string" && rec.alasan.trim() !== "" ? rec.alasan.trim() : "Penyesuaian stok";
-  return { delta, alasan };
-}
+import { parseAdjust } from "@/lib/validation/inventory";
 
 export async function POST(
   request: Request,
@@ -20,7 +12,7 @@ export async function POST(
     return NextResponse.json({ error: "Tidak terautentikasi." }, { status: 401 });
   }
   const { id } = await ctx.params;
-  const parsed = parse(await request.json().catch(() => null));
+  const parsed = parseAdjust(await request.json().catch(() => null));
   if (typeof parsed === "string") return NextResponse.json({ error: parsed }, { status: 400 });
 
   try {

@@ -1,24 +1,12 @@
 import { NextResponse } from "next/server";
 import { authService } from "@/lib/services/auth";
 import { establishSession } from "@/lib/session";
-
-interface LoginBody {
-  username: string;
-  password: string;
-}
-
-function parseBody(data: unknown): LoginBody | null {
-  if (typeof data !== "object" || data === null) return null;
-  if (!("username" in data) || !("password" in data)) return null;
-  const { username, password } = data;
-  if (typeof username !== "string" || typeof password !== "string") return null;
-  return { username, password };
-}
+import { parseLogin } from "@/lib/validation/auth";
 
 export async function POST(request: Request): Promise<NextResponse> {
-  const body = parseBody(await request.json().catch(() => null));
-  if (!body) {
-    return NextResponse.json({ error: "Permintaan tidak valid." }, { status: 400 });
+  const body = parseLogin(await request.json().catch(() => null));
+  if (typeof body === "string") {
+    return NextResponse.json({ error: body }, { status: 400 });
   }
 
   const user = await authService.login(body.username, body.password);
