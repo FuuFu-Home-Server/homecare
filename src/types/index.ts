@@ -570,6 +570,16 @@ export interface ApiResponse {
   data: unknown;
 }
 
+/** Window presentation mode (desktop only). */
+export type DisplayMode = "windowed" | "fullscreen" | "borderless";
+
+/** Per-machine desktop preferences, persisted in userData/app-prefs.json. */
+export interface AppPrefs {
+  displayMode: DisplayMode;
+  /** Launch HomeCare automatically at OS login (Windows/macOS). */
+  autoLaunch: boolean;
+}
+
 export interface HomeCareBridge {
   platform: string;
   invoke(request: ApiRequest): Promise<ApiResponse>;
@@ -577,4 +587,10 @@ export interface HomeCareBridge {
   print(): Promise<void>;
   /** Render the document to PDF and prompt for a save location. Returns saved. */
   printToPdf(filename: string): Promise<boolean>;
+  /** Read the current desktop preferences. */
+  getAppPrefs(): Promise<AppPrefs>;
+  /** Merge + persist desktop preferences; applies them live. Returns the new state. */
+  setAppPrefs(prefs: Partial<AppPrefs>): Promise<AppPrefs>;
+  /** Quit the application (graceful shutdown). */
+  quit(): Promise<void>;
 }

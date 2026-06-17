@@ -58,9 +58,8 @@ export default function LoginPage() {
     <div className="flex min-h-dvh items-center justify-center bg-linear-to-br from-slate-50 to-brand-50 px-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex flex-col items-center text-center">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600 text-2xl font-bold text-white">
-            +
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/app-icon.png" alt="HomeCare" className="mb-3 h-12 w-12 rounded-xl" />
           <h1 className="text-lg font-semibold text-slate-800">HomeCare</h1>
           <p className="text-sm text-slate-500">{CONFIG.clinic.nama}</p>
         </div>

@@ -123,9 +123,8 @@ export default function SetupPage() {
     <div className="flex min-h-dvh items-center justify-center bg-linear-to-br from-slate-50 to-brand-50 px-4 py-8">
       <div className="w-full max-w-lg">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600 text-2xl font-bold text-white">
-            +
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/app-icon.png" alt="HomeCare" className="mx-auto mb-3 h-12 w-12 rounded-xl" />
           <h1 className="text-lg font-semibold text-slate-800">Konfigurasi Awal HomeCare</h1>
           <p className="text-sm text-slate-500">Buat akun perawat (pemilik) dan identitas praktik.</p>
         </div>

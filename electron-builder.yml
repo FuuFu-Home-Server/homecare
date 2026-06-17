@@ -31,6 +31,7 @@ asarUnpack:
 npmRebuild: true
 
 win:
+  icon: build/icon.ico
   target:
     - nsis
   artifactName: ${productName}-${version}-setup.${ext}

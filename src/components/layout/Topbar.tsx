@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
+import { postJson } from "@/lib/fetcher";
 import { useAuth } from "@/hooks/useAuth";
 import { useClinic } from "@/hooks/useClinic";
 import { useLock } from "@/hooks/useLock";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { IconLogout, IconMenu } from "@/components/layout/icons";
 import type { Role } from "@/types";
 
@@ -22,7 +24,23 @@ export function Topbar({ onOpenMenu }: TopbarProps) {
   const { lock } = useLock();
   const clinic = useClinic();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [confirm, setConfirm] = useState<"logout" | "quit" | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setIsDesktop(typeof window !== "undefined" && Boolean(window.homecare));
+  }, []);
+
+  // Persist the lock, then quit — re-opening lands on the lock screen, session intact.
+  async function quitApp(): Promise<void> {
+    try {
+      await postJson("/api/auth/lock", {});
+    } catch {
+      /* lock is best-effort; quit anyway */
+    }
+    await window.homecare?.quit();
+  }
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -88,7 +106,7 @@ export function Topbar({ onOpenMenu }: TopbarProps) {
                 type="button"
                 onClick={() => {
                   setMenuOpen(false);
-                  logout();
+                  setConfirm("logout");
                 }}
                 className={cn(
                   "flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-600 hover:bg-red-50",
@@ -96,9 +114,45 @@ export function Topbar({ onOpenMenu }: TopbarProps) {
               >
                 <IconLogout className="h-4 w-4" /> Keluar
               </button>
+              {isDesktop ? (
+                <>
+                  <div className="my-1 border-t border-slate-100" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setConfirm("quit");
+                    }}
+                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" stroke="currentColor" strokeWidth={2}>
+                      <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+                      <line x1="12" y1="2" x2="12" y2="12" />
+                    </svg>{" "}
+                    Keluar Aplikasi
+                  </button>
+                </>
+              ) : null}
             </div>
         ) : null}
       </div>
+
+      <ConfirmDialog
+        open={confirm === "logout"}
+        onClose={() => setConfirm(null)}
+        onConfirm={logout}
+        title="Keluar"
+        message="Keluar dari akun ini? Anda harus masuk kembali."
+        confirmLabel="Keluar"
+      />
+      <ConfirmDialog
+        open={confirm === "quit"}
+        onClose={() => setConfirm(null)}
+        onConfirm={quitApp}
+        title="Keluar Aplikasi"
+        message="Tutup aplikasi? Sesi tersimpan — saat dibuka kembali akan langsung ke layar terkunci."
+        confirmLabel="Keluar Aplikasi"
+      />
     </header>
   );
 }

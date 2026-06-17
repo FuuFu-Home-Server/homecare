@@ -1,8 +1,9 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { CONFIG } from "@/lib/config";
+import { postJson } from "@/lib/fetcher";
 import { useAuth } from "@/hooks/useAuth";
 import { LockScreen } from "@/components/layout/LockScreen";
 
@@ -24,9 +25,21 @@ export function useLock(): LockValue {
  * stays valid) — a convenience that keeps patient data off an unattended screen,
  * not a cryptographic boundary. At-rest encryption is the real protection.
  */
-export function LockProvider({ children }: { children: ReactNode }) {
+export function LockProvider({
+  children,
+  initialLocked = false,
+}: {
+  children: ReactNode;
+  initialLocked?: boolean;
+}) {
   const { user } = useAuth();
-  const [locked, setLocked] = useState(false);
+  const [locked, setLocked] = useState(initialLocked);
+
+  // Persist the lock so closing the app while locked re-opens to the lock screen.
+  const lockNow = useCallback((): void => {
+    setLocked(true);
+    void postJson("/api/auth/lock", {}).catch(() => undefined);
+  }, []);
 
   useEffect(() => {
     if (locked) return;
@@ -34,7 +47,7 @@ export function LockProvider({ children }: { children: ReactNode }) {
     let timer: ReturnType<typeof setTimeout>;
     const reset = (): void => {
       clearTimeout(timer);
-      timer = setTimeout(() => setLocked(true), ms);
+      timer = setTimeout(lockNow, ms);
     };
     const events: ReadonlyArray<keyof WindowEventMap> = [
       "mousemove",
@@ -49,10 +62,10 @@ export function LockProvider({ children }: { children: ReactNode }) {
       clearTimeout(timer);
       events.forEach((e) => window.removeEventListener(e, reset));
     };
-  }, [locked]);
+  }, [locked, lockNow]);
 
   return (
-    <LockContext.Provider value={{ lock: () => setLocked(true) }}>
+    <LockContext.Provider value={{ lock: lockNow }}>
       {children}
       {locked ? <LockScreen nama={user.nama} onUnlock={() => setLocked(false)} /> : null}
     </LockContext.Provider>

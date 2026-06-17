@@ -8,7 +8,7 @@ import {
 import type { SessionData } from "@/lib/request-context";
 
 export type { SessionData } from "@/lib/request-context";
-export { runWithUser } from "@/lib/request-context";
+export { runWithUser, isLocked, setLocked } from "@/lib/request-context";
 
 // DEMO STUB: hardcoded session secret. Production reads from env (>= 32 chars).
 const SESSION_PASSWORD =

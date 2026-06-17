@@ -22,6 +22,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [clinic, setClinic] = useState<ClinicConfig | null>(null);
+  const [locked, setLocked] = useState(false);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -29,7 +30,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     void (async () => {
       try {
         const [me, c] = await Promise.all([
-          getJson<{ user: MeUser | null }>("/api/auth/me"),
+          getJson<{ user: MeUser | null; locked?: boolean }>("/api/auth/me"),
           getJson<{ clinic: ClinicConfig }>("/api/clinic"),
         ]);
         if (!active) return;
@@ -44,6 +45,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           nama: u.nama ?? "",
           role: u.role,
         });
+        setLocked(Boolean(me.locked));
         setClinic(c.clinic);
       } catch {
         if (active) router.replace("/login");
@@ -67,7 +69,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider initialUser={user}>
       <ClinicProvider clinic={clinic}>
-        <LockProvider>
+        <LockProvider initialLocked={locked}>
           <AppShell>{children}</AppShell>
         </LockProvider>
       </ClinicProvider>

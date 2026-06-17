@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { IconClose } from "@/components/layout/icons";
@@ -35,9 +36,9 @@ export function Modal({ open, onClose, title, description, children, footer, siz
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || typeof document === "undefined") return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
       <div className="absolute inset-0 bg-slate-900/40" onClick={onClose} />
       <div
@@ -69,6 +70,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
           </div>
         ) : null}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

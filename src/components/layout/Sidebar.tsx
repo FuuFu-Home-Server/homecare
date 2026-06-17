@@ -27,9 +27,12 @@ export function Sidebar({ className }: SidebarProps) {
       )}
     >
       <div className="flex items-center gap-2.5 px-5 py-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white">
-          <span className="text-lg font-bold leading-none">+</span>
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/app-icon.png"
+          alt={clinic.appTitle || "HomeCare"}
+          className="h-9 w-9 shrink-0 rounded-lg"
+        />
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-slate-800">{clinic.appTitle || "HomeCare"}</p>
           <p className="truncate text-xs text-slate-400">{clinic.kota}</p>

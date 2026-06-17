@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -11,16 +11,25 @@ import { useToast } from "@/components/ui/Toast";
 import { StaffManager } from "@/components/pengaturan/StaffManager";
 import { ScheduleEditor } from "@/components/pengaturan/ScheduleEditor";
 import { BackupManager } from "@/components/pengaturan/BackupManager";
+import { AppSettings } from "@/components/pengaturan/AppSettings";
 import { useAuth } from "@/hooks/useAuth";
 import { useClinic } from "@/hooks/useClinic";
 import { patchJson } from "@/lib/fetcher";
 import { cn } from "@/lib/cn";
 import type { ClinicConfig } from "@/lib/config";
 
-type Tab = "klinik" | "jadwal" | "akun" | "staf" | "cadangan";
+type Tab = "klinik" | "jadwal" | "akun" | "staf" | "cadangan" | "aplikasi";
+
+const TAB_KEY = "pengaturan.tab";
 
 export function SettingsView() {
   const { user } = useAuth();
+  // Desktop-only: presentation + startup prefs exist only behind the Electron bridge.
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => {
+    setIsDesktop(typeof window !== "undefined" && Boolean(window.homecare));
+  }, []);
+
   const tabs: { id: Tab; label: string }[] = [
     { id: "klinik", label: "Profil Praktik" },
     { id: "jadwal", label: "Jadwal Praktik" },
@@ -31,8 +40,28 @@ export function SettingsView() {
           { id: "cadangan" as const, label: "Cadangan Data" },
         ]
       : []),
+    ...(isDesktop ? [{ id: "aplikasi" as const, label: "Aplikasi" }] : []),
   ];
   const [tab, setTab] = useState<Tab>("klinik");
+
+  // Restore the last tab after a mount (e.g. a display-mode switch rebuilds the window).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = localStorage.getItem(TAB_KEY) as Tab | null;
+    const allowed: Tab[] = [
+      "klinik",
+      "jadwal",
+      "akun",
+      ...(user.role === "perawat" ? (["staf", "cadangan"] as Tab[]) : []),
+      ...(window.homecare ? (["aplikasi"] as Tab[]) : []),
+    ];
+    if (saved && allowed.includes(saved)) setTab(saved);
+  }, [user.role]);
+
+  const selectTab = (id: Tab): void => {
+    setTab(id);
+    if (typeof window !== "undefined") localStorage.setItem(TAB_KEY, id);
+  };
 
   return (
     <>
@@ -42,7 +71,7 @@ export function SettingsView() {
           <button
             key={t.id}
             type="button"
-            onClick={() => setTab(t.id)}
+            onClick={() => selectTab(t.id)}
             className={cn(
               "flex-1 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
               tab === t.id ? "bg-brand-600 text-white" : "text-slate-600 hover:bg-slate-50",
@@ -58,6 +87,7 @@ export function SettingsView() {
       {tab === "akun" ? <AccountForm initialNama={user.nama} /> : null}
       {tab === "staf" && user.role === "perawat" ? <StaffManager currentUserId={user.userId} /> : null}
       {tab === "cadangan" && user.role === "perawat" ? <BackupManager /> : null}
+      {tab === "aplikasi" && isDesktop ? <AppSettings /> : null}
     </>
   );
 }
