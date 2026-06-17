@@ -33,8 +33,30 @@ jobs:
         env:
           npm_config_msvs_version: "2022"
 
+      - name: Resolve version tag
+        id: ver
+        shell: bash
+        run: echo "v=v$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      # electron-builder uploads the .exe and .blockmap concurrently; if the
+      # release doesn't exist yet, BOTH try to create it and race — one asset gets
+      # orphaned. Pre-creating the draft means neither upload creates it.
+      - name: Ensure draft release exists
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VER: ${{ steps.ver.outputs.v }}
+        run: gh release view "$VER" >/dev/null 2>&1 || gh release create "$VER" --draft --title "$VER" --notes "Automated release $VER"
+
       # build:desktop (static export) + electron:build (esbuild) + electron-builder
-      # --win --publish always. GH_TOKEN is the auto-provided Actions token.
+      # --win --publish always → uploads into the existing draft (no create race).
       - run: npm run release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VER: ${{ steps.ver.outputs.v }}
+        run: gh release edit "$VER" --draft=false
