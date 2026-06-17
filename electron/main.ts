@@ -6,6 +6,7 @@ import { CONFIG } from "@/lib/config";
 import { autoBackup, registerIpc, shutdown } from "./ipc/dispatch";
 import { registerPrintIpc } from "./ipc/print";
 import { log } from "./logger";
+import { initAutoUpdate } from "./updater";
 import { APP_ORIGIN, registerAppScheme, registerStaticProtocol } from "./static-protocol";
 
 // Last-resort crash trail: never let an unhandled error die silently on-device.
@@ -102,6 +103,9 @@ if (!gotLock) {
     // On-device backups (no server): run on launch, then on the configured cadence.
     void autoBackup();
     setInterval(() => void autoBackup(), CONFIG.backup.autoIntervalHours * 3_600_000);
+
+    // Auto-update from GitHub Releases — packaged build only, best-effort.
+    if (app.isPackaged) initAutoUpdate();
   });
 
   app.on("activate", () => {

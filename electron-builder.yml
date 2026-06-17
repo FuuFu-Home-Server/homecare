@@ -1,0 +1,54 @@
+appId: id.homedoc.app
+productName: HomeDoc
+copyright: HomeDoc
+
+directories:
+  output: release
+  buildResources: build
+
+# The renderer (static export) + the esbuild main/preload bundles. Production
+# node_modules (better-sqlite3-multiple-ciphers, @node-rs/argon2, next, …) are
+# pulled in automatically from "dependencies".
+files:
+  - dist-electron/**/*
+  - out/**/*
+  - package.json
+
+# schema.sql is read at runtime to bootstrap a fresh userData DB on first launch
+# (electron/main.ts sets HOMEDOC_SCHEMA_PATH to process.resourcesPath/schema.sql).
+extraResources:
+  - from: db/schema.sql
+    to: schema.sql
+
+# Native addons must live outside the asar so the .node binaries are loadable.
+asarUnpack:
+  - "**/node_modules/better-sqlite3-multiple-ciphers/**"
+  - "**/node_modules/@node-rs/argon2*/**"
+
+# Rebuild native deps against the bundled Electron ABI at packaging time. Must run
+# on Windows (or a Windows CI runner): better-sqlite3-multiple-ciphers compiles
+# from source for the electron/win32 target.
+npmRebuild: true
+
+win:
+  target:
+    - nsis
+  artifactName: ${productName}-${version}-setup.${ext}
+  # Unsigned: Windows SmartScreen warns on first run (see DESKTOP.md → "Run anyway").
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  allowElevation: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: HomeDoc
+
+# electron-updater reads this to generate app-update.yml. Replace owner/repo with
+# the real GitHub repository before the first published release.
+publish:
+  provider: github
+  owner: REPLACE_WITH_GITHUB_OWNER
+  repo: homedoc
+  releaseType: release

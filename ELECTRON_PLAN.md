@@ -111,8 +111,13 @@ Audit found **19/20 pages are Server Components**; 5 read `lib/db` during SSR. S
    - 6b: `node:test` harness (`npm test`, run under electron-as-node + tsx) — fefo (pure, 7 cases), migrations (schema bootstrap/version/integrity/idempotency), payroll (pay/dup-guard/owner-exclusion/unmark). 16 tests green.
    - DataTable pagination was already implemented (page/size/range/prev-next) — no change needed.
    - Deferred: billing full-graph integration test (needs patient+visit+prescription fixtures); covered indirectly by payroll+migrations.
-7. electron-builder + electron-updater + client docs (install/update/backup). ← next
-8. Hardening: offline full-visit run-through, IPC/secret security review, large-dataset perf.
+7. electron-builder + electron-updater + client docs (install/update/backup). **✓ config done.**
+   - `electron-builder.yml`: NSIS win target, schema.sql extraResource, native modules asarUnpack, GitHub publish (owner = `REPLACE_WITH_GITHUB_OWNER`).
+   - `electron/updater.ts`: electron-updater, best-effort `checkForUpdatesAndNotify`, packaged-only, logged.
+   - Scripts: `npm run dist` (local installer), `npm run release` (build + upload). `DESKTOP.md` covers build/sign/update/backup/recovery.
+   - **Requires a Windows host to actually produce the .exe** (native modules compile against electron/win32); cannot be built/tested from this Linux box. Replace `publish.owner` before first release.
+8. Hardening: offline full-visit run-through, IPC/secret security review, large-dataset perf. ← next
+9. Locked: auto-update host = **GitHub Releases**; build = **unsigned** (SmartScreen "Run anyway").
 
 ## Known gaps to revisit (post step-2)
 - **Some desktop features missing under preview** (reported after electron:preview). Prime suspects: RBAC over-restriction in `electron/rbac.ts` (e.g. `/api/treatments` marked perawat-only but asisten/kasir may need it → 403) — finalize the policy table in step 4; print-to-PDF pipeline (step 5). User to enumerate the missing features; revisit before step 2 sign-off / during step 4.
