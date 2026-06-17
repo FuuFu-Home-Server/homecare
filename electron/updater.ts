@@ -1,4 +1,4 @@
-import pkg from "electron-updater";
+import electronUpdater, { autoUpdater as namedAutoUpdater } from "electron-updater";
 import { log } from "./logger";
 
 /**
@@ -8,7 +8,7 @@ import { log } from "./logger";
  * installs on quit (default behaviour of checkForUpdatesAndNotify).
  */
 
-const { autoUpdater } = pkg;
+const autoUpdater = namedAutoUpdater ?? electronUpdater.autoUpdater;
 
 export function initAutoUpdate(): void {
   autoUpdater.logger = {
