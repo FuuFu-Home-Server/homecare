@@ -106,8 +106,12 @@ Audit found **19/20 pages are Server Components**; 5 read `lib/db` during SSR. S
 3. DB → userData + versioned migrations + integrity + encryption + backup/restore.
 4. Real auth + lock/idle + RBAC at IPC + zod validation + secret storage.
 5. Setup wizard + Pengaturan identity/SIPP + print pipeline + remove demo affordances.
-6. Tests (fefo, billing, migrations, payroll) + error boundaries + logging.
-7. electron-builder + electron-updater + client docs (install/update/backup).
+6. Tests (fefo, billing, migrations, payroll) + error boundaries + logging. **✓ done.**
+   - 6a: main-process rotating log (`electron/logger.ts`) + crash handlers (uncaughtException / unhandledRejection / render-process-gone) + IPC error logging; root `global-error.tsx` boundary (group `(app)/error.tsx` already existed).
+   - 6b: `node:test` harness (`npm test`, run under electron-as-node + tsx) — fefo (pure, 7 cases), migrations (schema bootstrap/version/integrity/idempotency), payroll (pay/dup-guard/owner-exclusion/unmark). 16 tests green.
+   - DataTable pagination was already implemented (page/size/range/prev-next) — no change needed.
+   - Deferred: billing full-graph integration test (needs patient+visit+prescription fixtures); covered indirectly by payroll+migrations.
+7. electron-builder + electron-updater + client docs (install/update/backup). ← next
 8. Hardening: offline full-visit run-through, IPC/secret security review, large-dataset perf.
 
 ## Known gaps to revisit (post step-2)
