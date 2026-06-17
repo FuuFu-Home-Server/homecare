@@ -7,7 +7,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export const metadata: Metadata = {
-  title: `HomeDoc — ${CONFIG.clinic.nama}`,
+  title: `HomeCare — ${CONFIG.clinic.nama}`,
   description: "Sistem manajemen praktik keperawatan mandiri",
 };
 

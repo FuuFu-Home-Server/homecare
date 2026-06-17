@@ -44,9 +44,9 @@ const PATIENT: CreatePatientInput = {
 };
 
 before(async () => {
-  tmp = fs.mkdtempSync(path.join(os.tmpdir(), "homedoc-flow-"));
-  process.env.HOMEDOC_DB_PATH = path.join(tmp, "clinic.db");
-  process.env.HOMEDOC_SCHEMA_PATH = path.join(process.cwd(), "db", "schema.sql");
+  tmp = fs.mkdtempSync(path.join(os.tmpdir(), "homecare-flow-"));
+  process.env.HOMECARE_DB_PATH = path.join(tmp, "clinic.db");
+  process.env.HOMECARE_SCHEMA_PATH = path.join(process.cwd(), "db", "schema.sql");
 
   const { createUser } = await import("@/lib/db/users");
   perawatId = createUser({

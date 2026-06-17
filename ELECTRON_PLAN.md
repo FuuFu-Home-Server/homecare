@@ -1,4 +1,4 @@
-# HomeDoc — Desktop (Electron) Production Plan
+# HomeCare — Desktop (Electron) Production Plan
 
 Offline-first Electron desktop wrap of the existing Next.js app. No rewrite of UI or repositories. Preserves every CLAUDE.md rule: layer flow, SQL-only-in-`lib/db`, strict typing, schema.sql+migrate() dual-write, integer rupiah, WIB helpers, DataTable/Column<T>, StatusPill tones, append-only records.
 
@@ -112,7 +112,7 @@ Audit found **19/20 pages are Server Components**; 5 read `lib/db` during SSR. S
    - DataTable pagination was already implemented (page/size/range/prev-next) — no change needed.
    - Deferred: billing full-graph integration test (needs patient+visit+prescription fixtures); covered indirectly by payroll+migrations.
 7. electron-builder + electron-updater + client docs (install/update/backup). **✓ config done.**
-   - `electron-builder.yml`: NSIS win target, schema.sql extraResource, native modules asarUnpack, GitHub publish (owner = `REPLACE_WITH_GITHUB_OWNER`).
+   - `electron-builder.yml`: NSIS win target, schema.sql extraResource, native modules asarUnpack, GitHub publish (FuuFu-Home-Server/homecare).
    - `electron/updater.ts`: electron-updater, best-effort `checkForUpdatesAndNotify`, packaged-only, logged.
    - Scripts: `npm run dist` (local installer), `npm run release` (build + upload). `DESKTOP.md` covers build/sign/update/backup/recovery.
    - **Requires a Windows host to actually produce the .exe** (native modules compile against electron/win32); cannot be built/tested from this Linux box. Replace `publish.owner` before first release.

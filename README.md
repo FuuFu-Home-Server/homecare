@@ -1,4 +1,4 @@
-# HomeDoc — Sistem Manajemen Praktik Keperawatan Mandiri
+# HomeCare — Sistem Manajemen Praktik Keperawatan Mandiri
 
 Aplikasi web untuk praktik keperawatan mandiri (home clinic) di Indonesia, self-pay. Dua peran:
 

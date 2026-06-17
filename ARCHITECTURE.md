@@ -1,4 +1,4 @@
-# Arsitektur — HomeDoc
+# Arsitektur — HomeCare
 
 Modular monolith: satu app Next.js (App Router) + SQLite, satu proses. Demo = keputusan **data & scope** (data dummy, integrasi eksternal di luar lingkup), **bukan** keputusan kualitas kode. Kode production-grade sejak hari pertama.
 

@@ -1,6 +1,6 @@
-appId: id.homedoc.app
-productName: HomeDoc
-copyright: HomeDoc
+appId: id.homecare.app
+productName: HomeCare
+copyright: HomeCare
 
 directories:
   output: release
@@ -15,7 +15,7 @@ files:
   - package.json
 
 # schema.sql is read at runtime to bootstrap a fresh userData DB on first launch
-# (electron/main.ts sets HOMEDOC_SCHEMA_PATH to process.resourcesPath/schema.sql).
+# (electron/main.ts sets HOMECARE_SCHEMA_PATH to process.resourcesPath/schema.sql).
 extraResources:
   - from: db/schema.sql
     to: schema.sql
@@ -43,12 +43,12 @@ nsis:
   allowElevation: true
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  shortcutName: HomeDoc
+  shortcutName: HomeCare
 
 # electron-updater reads this to generate app-update.yml. Replace owner/repo with
 # the real GitHub repository before the first published release.
 publish:
   provider: github
-  owner: REPLACE_WITH_GITHUB_OWNER
-  repo: homedoc
+  owner: FuuFu-Home-Server
+  repo: homecare
   releaseType: release

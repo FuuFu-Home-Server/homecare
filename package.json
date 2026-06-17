@@ -1,5 +1,5 @@
 {
-  "name": "homedoc",
+  "name": "homecare",
   "version": "0.1.0",
   "private": true,
   "main": "dist-electron/main.js",
@@ -18,7 +18,7 @@
     "electron:rebuild": "electron-rebuild -f -w better-sqlite3-multiple-ciphers",
     "electron:launch": "npm run electron:build && wait-on tcp:3000 && electron .",
     "electron:dev": "concurrently -k -n next,electron \"npm:dev\" \"npm:electron:launch\"",
-    "electron:preview": "npm run build:desktop && npm run electron:build && HOMEDOC_RENDERER=static electron .",
+    "electron:preview": "npm run build:desktop && npm run electron:build && HOMECARE_RENDERER=static electron .",
     "dist": "npm run build:desktop && npm run electron:build && electron-builder --win --publish never",
     "release": "npm run build:desktop && npm run electron:build && electron-builder --win --publish always"
   },

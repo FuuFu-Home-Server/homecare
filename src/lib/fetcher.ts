@@ -2,10 +2,10 @@
  * Thin typed transport wrappers. Throw on non-2xx with the server's message.
  *
  * On the desktop build the renderer reaches the repositories over the Electron
- * IPC bridge (window.homedoc); on the web build it falls back to HTTP fetch.
+ * IPC bridge (window.homecare); on the web build it falls back to HTTP fetch.
  * Hook call sites are identical across both — this is the only switch point.
  */
-import type { ApiMethod, HomeDocBridge } from "@/types";
+import type { ApiMethod, HomeCareBridge } from "@/types";
 
 interface ApiError {
   error: string;
@@ -15,12 +15,12 @@ function isApiError(data: unknown): data is ApiError {
   return typeof data === "object" && data !== null && "error" in data && typeof data.error === "string";
 }
 
-function bridge(): HomeDocBridge | undefined {
-  return typeof window !== "undefined" ? window.homedoc : undefined;
+function bridge(): HomeCareBridge | undefined {
+  return typeof window !== "undefined" ? window.homecare : undefined;
 }
 
 async function viaBridge<T>(
-  b: HomeDocBridge,
+  b: HomeCareBridge,
   method: ApiMethod,
   path: string,
   body: unknown,

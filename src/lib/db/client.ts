@@ -46,22 +46,22 @@ function applyKey(db: Database.Database): void {
 
 /**
  * DB location resolves lazily so the Electron main process can point at the OS
- * user-data dir (via HOMEDOC_DB_PATH) before the first connection is opened.
+ * user-data dir (via HOMECARE_DB_PATH) before the first connection is opened.
  * In dev / web / the tsx scripts the env var is unset and we fall back to the
  * project `db/` folder.
  */
 function resolveDbPath(): string {
-  return process.env.HOMEDOC_DB_PATH ?? path.join(process.cwd(), "db", "clinic.db");
+  return process.env.HOMECARE_DB_PATH ?? path.join(process.cwd(), "db", "clinic.db");
 }
 
-/** Absolute path of the live DB file (honours HOMEDOC_DB_PATH). */
+/** Absolute path of the live DB file (honours HOMECARE_DB_PATH). */
 export function currentDbPath(): string {
   return resolveDbPath();
 }
 
 /** Canonical schema for bootstrapping a fresh DB. Packaged: bundled resource. */
 function resolveSchemaPath(): string {
-  return process.env.HOMEDOC_SCHEMA_PATH ?? path.join(process.cwd(), "db", "schema.sql");
+  return process.env.HOMECARE_SCHEMA_PATH ?? path.join(process.cwd(), "db", "schema.sql");
 }
 
 export const DB_PATH = resolveDbPath();

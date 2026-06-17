@@ -7,9 +7,9 @@ import path from "node:path";
 let tmp: string;
 
 before(() => {
-  tmp = fs.mkdtempSync(path.join(os.tmpdir(), "homedoc-mig-"));
-  process.env.HOMEDOC_DB_PATH = path.join(tmp, "clinic.db");
-  process.env.HOMEDOC_SCHEMA_PATH = path.join(process.cwd(), "db", "schema.sql");
+  tmp = fs.mkdtempSync(path.join(os.tmpdir(), "homecare-mig-"));
+  process.env.HOMECARE_DB_PATH = path.join(tmp, "clinic.db");
+  process.env.HOMECARE_SCHEMA_PATH = path.join(process.cwd(), "db", "schema.sql");
 });
 
 after(async () => {

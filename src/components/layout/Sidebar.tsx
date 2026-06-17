@@ -31,7 +31,7 @@ export function Sidebar({ className }: SidebarProps) {
           <span className="text-lg font-bold leading-none">+</span>
         </div>
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-slate-800">{clinic.appTitle || "HomeDoc"}</p>
+          <p className="truncate text-sm font-semibold text-slate-800">{clinic.appTitle || "HomeCare"}</p>
           <p className="truncate text-xs text-slate-400">{clinic.kota}</p>
         </div>
       </div>

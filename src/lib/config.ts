@@ -54,7 +54,7 @@ export const CONFIG: AppConfig = {
     alamat: "Jl. Melati Raya No. 14, Kel. Sukamaju",
     telepon: "0812-3456-7890",
     kota: "Bandung",
-    appTitle: "HomeDoc",
+    appTitle: "HomeCare",
     strukFooter: "Terima kasih atas kunjungan Anda. Semoga lekas sehat.",
     strukFooter2: "",
   },

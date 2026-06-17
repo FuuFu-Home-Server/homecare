@@ -1,6 +1,6 @@
-# HomeDoc Desktop (Windows)
+# HomeCare Desktop (Windows)
 
-Offline-first Electron build of HomeDoc. One installable `.exe`; all data stays
+Offline-first Electron build of HomeCare. One installable `.exe`; all data stays
 on the device in an encrypted SQLite database.
 
 ## Building the installer
@@ -12,7 +12,7 @@ native binary.
 
 ```powershell
 npm ci
-npm run dist        # → release/HomeDoc-<version>-setup.exe (no upload)
+npm run dist        # → release/HomeCare-<version>-setup.exe (no upload)
 ```
 
 `npm run dist` runs, in order: static renderer export (`build:desktop`), the
@@ -23,7 +23,7 @@ esbuild main/preload bundles (`electron:build`), then `electron-builder --win`.
 Auto-update pulls from **GitHub Releases** via `electron-updater`.
 
 1. In `electron-builder.yml`, set `publish.owner` to the GitHub account/org that
-   owns the repo (currently `REPLACE_WITH_GITHUB_OWNER`).
+   owns the repo (set to `FuuFu-Home-Server` / `homecare`).
 2. Export a token with `repo` scope: `set GH_TOKEN=ghp_...`
 3. Bump `version` in `package.json`, then:
 
@@ -44,7 +44,7 @@ rebuild.
 
 ## Where data lives
 
-Everything sits under the OS user-data dir (`%APPDATA%/HomeDoc`):
+Everything sits under the OS user-data dir (`%APPDATA%/HomeCare`):
 
 - `clinic.db` — the encrypted database (SQLCipher).
 - `keystore.json` — wrapped master key (owner password + recovery key). **Back up

@@ -28,11 +28,11 @@ interface SharedState {
   current: SessionData | null;
 }
 
-const globalRef = globalThis as typeof globalThis & { __homedocState?: SharedState };
+const globalRef = globalThis as typeof globalThis & { __homecareState?: SharedState };
 
 const state: SharedState =
-  globalRef.__homedocState ??
-  (globalRef.__homedocState = {
+  globalRef.__homecareState ??
+  (globalRef.__homecareState = {
     als: new AsyncLocalStorage<SessionData | null>(),
     desktop: false,
     current: null,

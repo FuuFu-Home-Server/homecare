@@ -1,8 +1,8 @@
-import type { HomeDocBridge } from "@/types";
+import type { HomeCareBridge } from "@/types";
 
 declare global {
   interface Window {
-    homedoc?: HomeDocBridge;
+    homecare?: HomeCareBridge;
   }
 }
 

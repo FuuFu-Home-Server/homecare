@@ -60,7 +60,7 @@ export default function LoginPage() {
           <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600 text-2xl font-bold text-white">
             +
           </div>
-          <h1 className="text-lg font-semibold text-slate-800">HomeDoc</h1>
+          <h1 className="text-lg font-semibold text-slate-800">HomeCare</h1>
           <p className="text-sm text-slate-500">{CONFIG.clinic.nama}</p>
         </div>
 

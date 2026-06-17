@@ -83,7 +83,7 @@ const seed = db.transaction(() => {
     "Jl. Melati Raya No. 14, Kel. Sukamaju",
     "Bandung",
     "0812-3456-7890",
-    "HomeDoc",
+    "HomeCare",
     "Terima kasih atas kunjungan Anda. Semoga lekas sehat.",
     "",
   );

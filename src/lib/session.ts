@@ -12,11 +12,11 @@ export { runWithUser } from "@/lib/request-context";
 
 // DEMO STUB: hardcoded session secret. Production reads from env (>= 32 chars).
 const SESSION_PASSWORD =
-  process.env.SESSION_SECRET ?? "homedoc-demo-session-secret-key-min-32-characters";
+  process.env.SESSION_SECRET ?? "homecare-demo-session-secret-key-min-32-characters";
 
 export const sessionOptions = {
   password: SESSION_PASSWORD,
-  cookieName: "homedoc_session",
+  cookieName: "homecare_session",
   cookieOptions: {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

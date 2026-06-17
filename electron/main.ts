@@ -16,9 +16,9 @@ process.on("unhandledRejection", (reason) => log("error", "unhandledRejection", 
 const RENDERER_DEV_URL = process.env.ELECTRON_RENDERER_URL ?? "http://localhost:3000";
 const OUT_DIR = path.join(__dirname, "..", "out");
 
-// Packaged builds — and an opt-in preview (HOMEDOC_RENDERER=static) — serve the
+// Packaged builds — and an opt-in preview (HOMECARE_RENDERER=static) — serve the
 // static export over app://; otherwise load the next-dev server for HMR.
-const useStaticRenderer = app.isPackaged || process.env.HOMEDOC_RENDERER === "static";
+const useStaticRenderer = app.isPackaged || process.env.HOMECARE_RENDERER === "static";
 
 registerAppScheme();
 
@@ -33,7 +33,7 @@ function createWindow(): void {
     minHeight: 640,
     show: false,
     backgroundColor: "#f8fafc",
-    title: "HomeDoc",
+    title: "HomeCare",
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -89,11 +89,11 @@ if (!gotLock) {
     // fall back to the seeded project db/clinic.db so login works out of the box.
     // Fresh-DB schema bootstrap for production is handled in the migration step.
     if (app.isPackaged) {
-      process.env.HOMEDOC_DB_PATH = path.join(app.getPath("userData"), "clinic.db");
+      process.env.HOMECARE_DB_PATH = path.join(app.getPath("userData"), "clinic.db");
       // schema.sql ships as an extraResource (see electron-builder config).
-      process.env.HOMEDOC_SCHEMA_PATH = path.join(process.resourcesPath, "schema.sql");
+      process.env.HOMECARE_SCHEMA_PATH = path.join(process.resourcesPath, "schema.sql");
     }
-    log("info", `HomeDoc start (packaged=${app.isPackaged}, renderer=${useStaticRenderer ? "static" : "dev"})`);
+    log("info", `HomeCare start (packaged=${app.isPackaged}, renderer=${useStaticRenderer ? "static" : "dev"})`);
     enableDesktopMode();
     registerIpc();
     registerPrintIpc();

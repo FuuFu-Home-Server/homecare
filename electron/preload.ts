@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
-import type { ApiRequest, ApiResponse, HomeDocBridge } from "@/types";
+import type { ApiRequest, ApiResponse, HomeCareBridge } from "@/types";
 
-const api: HomeDocBridge = {
+const api: HomeCareBridge = {
   platform: process.platform,
   invoke(request: ApiRequest): Promise<ApiResponse> {
     return ipcRenderer.invoke("api:invoke", request);
@@ -14,4 +14,4 @@ const api: HomeDocBridge = {
   },
 };
 
-contextBridge.exposeInMainWorld("homedoc", api);
+contextBridge.exposeInMainWorld("homecare", api);

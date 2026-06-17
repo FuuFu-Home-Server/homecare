@@ -570,7 +570,7 @@ export interface ApiResponse {
   data: unknown;
 }
 
-export interface HomeDocBridge {
+export interface HomeCareBridge {
   platform: string;
   invoke(request: ApiRequest): Promise<ApiResponse>;
   /** Open the OS print dialog for the current document (physical or save-as-PDF). */
