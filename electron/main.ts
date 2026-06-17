@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell } from "electron";
+import { app, BrowserWindow, Menu, shell } from "electron";
 import path from "node:path";
 import { loadWindowState, persistWindowState } from "./window-state";
 import { enableDesktopMode } from "@/lib/request-context";
@@ -32,6 +32,8 @@ function createWindow(): void {
     minWidth: 1024,
     minHeight: 640,
     show: false,
+    skipTaskbar: true,
+    autoHideMenuBar: true,
     backgroundColor: "#f8fafc",
     title: "HomeCare",
     webPreferences: {
@@ -94,6 +96,7 @@ if (!gotLock) {
       process.env.HOMECARE_SCHEMA_PATH = path.join(process.resourcesPath, "schema.sql");
     }
     log("info", `HomeCare start (packaged=${app.isPackaged}, renderer=${useStaticRenderer ? "static" : "dev"})`);
+    Menu.setApplicationMenu(null);
     enableDesktopMode();
     registerIpc();
     registerPrintIpc();

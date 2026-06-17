@@ -57,15 +57,13 @@ export function parseBooking(data: unknown): { patientId: number; keluhan: strin
   return parse(bookingSchema, data);
 }
 
-const statusSchema = z
-  .object({
-    status: z.enum(["terdaftar", "tiba", "diperiksa", "selesai", "batal"], {
-      error: "Status tidak valid.",
-    }),
-  })
-  .transform((o): AntrianStatus => o.status);
+const statusSchema = z.object({
+  status: z.enum(["terdaftar", "tiba", "diperiksa", "selesai", "batal"], {
+    error: "Status tidak valid.",
+  }),
+});
 
-export function parseStatus(data: unknown): AntrianStatus | string {
+export function parseStatus(data: unknown): { status: AntrianStatus } | string {
   return parse(statusSchema, data);
 }
 

@@ -15,9 +15,9 @@ export async function PATCH(
   if (!getQueueEntry(visitId)) {
     return NextResponse.json({ error: "Kunjungan tidak ditemukan." }, { status: 404 });
   }
-  const status = parseStatus(await request.json().catch(() => null));
-  if (typeof status === "string") return NextResponse.json({ error: status }, { status: 400 });
+  const parsed = parseStatus(await request.json().catch(() => null));
+  if (typeof parsed === "string") return NextResponse.json({ error: parsed }, { status: 400 });
 
-  updateStatus(visitId, status);
+  updateStatus(visitId, parsed.status);
   return NextResponse.json({ entry: getQueueEntry(visitId) });
 }
