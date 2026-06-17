@@ -4,7 +4,6 @@ import {
   IconDashboard,
   IconPasien,
   IconAntrian,
-  IconRekamMedis,
   IconRiwayat,
   IconStok,
   IconKasir,
@@ -24,8 +23,7 @@ const PERAWAT: ReadonlyArray<Role> = ["perawat"];
 export const NAV_ITEMS: ReadonlyArray<NavItem> = [
   { href: "/dashboard", label: "Dashboard", icon: IconDashboard, roles: ALL },
   { href: "/pasien", label: "Pasien", icon: IconPasien, roles: ALL },
-  { href: "/antrian", label: "Antrian", icon: IconAntrian, roles: ALL },
-  { href: "/rekam-medis", label: "Rekam Medis", icon: IconRekamMedis, roles: PERAWAT },
+  { href: "/antrian", label: "Kunjungan", icon: IconAntrian, roles: ALL },
   { href: "/riwayat", label: "Riwayat", icon: IconRiwayat, roles: ALL },
   { href: "/stok", label: "Stok & Obat", icon: IconStok, roles: ALL },
   { href: "/kasir", label: "Kasir", icon: IconKasir, roles: ALL },

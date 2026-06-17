@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { StaffManager } from "@/components/pengaturan/StaffManager";
@@ -190,24 +191,22 @@ function AccountForm({ initialNama }: { initialNama: string }) {
         <div className="border-t border-slate-100 pt-4">
           <p className="mb-3 text-xs font-semibold text-slate-500">Ganti Password (opsional)</p>
           <div className="space-y-3">
-            <Input
+            <PasswordInput
               label="Password Lama"
-              type="password"
               value={oldPassword}
               onChange={(e) => setOldPassword(e.target.value)}
               error={oldErr ?? undefined}
             />
-            <Input
+            <PasswordInput
               label="Password Baru"
-              type="password"
+              meter={wantPw}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               error={pwErr ?? undefined}
               hint={!wantPw ? "Kosongkan jika tidak ingin mengganti password." : undefined}
             />
-            <Input
+            <PasswordInput
               label="Konfirmasi Password Baru"
-              type="password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               error={confirmErr ?? undefined}

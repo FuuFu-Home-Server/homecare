@@ -9,11 +9,13 @@ import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { DropdownMenu } from "@/components/ui/DropdownMenu";
 import { Input, Label } from "@/components/ui/Input";
+import { MoneyInput } from "@/components/ui/MoneyInput";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { CustomSelect } from "@/components/ui/CustomSelect";
 import { useToast } from "@/components/ui/Toast";
 import { IconPlus } from "@/components/layout/icons";
 import { getJson, postJson, patchJson, deleteJson } from "@/lib/fetcher";
-import { rupiah, formatThousands } from "@/lib/format";
+import { rupiah } from "@/lib/format";
 import type { Role, User } from "@/types";
 
 const ROLE_LABEL: Record<Role, string> = {
@@ -299,9 +301,9 @@ function AddStaffModal({
             options={ROLE_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
           />
         </div>
-        <Input
+        <PasswordInput
           label="Password"
-          type="password"
+          meter
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           error={passwordErr ?? undefined}
@@ -321,11 +323,10 @@ function AddStaffModal({
           onChange={(e) => setPembayaran(e.target.value)}
           hint="Mis. bank & nomor rekening untuk penggajian."
         />
-        <Input
+        <MoneyInput
           label="Gaji (opsional)"
-          inputMode="numeric"
-          value={formatThousands(gaji)}
-          onChange={(e) => setGaji(e.target.value.replace(/\D/g, ""))}
+          value={gaji}
+          onChange={setGaji}
           hint="Gaji pokok per bulan, dalam rupiah."
         />
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
@@ -438,11 +439,10 @@ function EditStaffModal({
           onChange={(e) => setPembayaran(e.target.value)}
           hint="Mis. bank & nomor rekening untuk penggajian."
         />
-        <Input
+        <MoneyInput
           label="Gaji (opsional)"
-          inputMode="numeric"
-          value={formatThousands(gaji)}
-          onChange={(e) => setGaji(e.target.value.replace(/\D/g, ""))}
+          value={gaji}
+          onChange={setGaji}
           hint="Gaji pokok per bulan, dalam rupiah."
         />
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
@@ -497,9 +497,9 @@ function ResetPasswordModal({ user, onClose }: { user: User | null; onClose: () 
         </>
       }
     >
-      <Input
+      <PasswordInput
         label="Password Baru"
-        type="password"
+        meter
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />

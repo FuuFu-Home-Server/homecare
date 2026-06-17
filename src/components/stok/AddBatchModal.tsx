@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { useToast } from "@/components/ui/Toast";
 import { todayWIB } from "@/lib/format";
@@ -89,7 +90,7 @@ export function AddBatchModal({ open, onClose, onSubmit }: AddBatchModalProps) {
           min={todayWIB()}
         />
         <Input label="Jumlah" inputMode="numeric" value={form.qty} onChange={(e) => set("qty", e.target.value.replace(/\D/g, ""))} />
-        <Input label="Harga Beli / satuan (opsional)" inputMode="numeric" value={form.hargaBeli} onChange={(e) => set("hargaBeli", e.target.value.replace(/\D/g, ""))} />
+        <MoneyInput label="Harga Beli / satuan (opsional)" value={form.hargaBeli} onChange={(v) => set("hargaBeli", v)} />
       </div>
       {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
     </Modal>

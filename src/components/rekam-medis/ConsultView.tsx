@@ -22,7 +22,7 @@ export interface ConsultViewProps {
   backHref?: string;
 }
 
-export function ConsultView({ visitId, backHref = "/rekam-medis" }: ConsultViewProps) {
+export function ConsultView({ visitId, backHref = "/antrian" }: ConsultViewProps) {
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -68,7 +68,7 @@ export function ConsultView({ visitId, backHref = "/rekam-medis" }: ConsultViewP
   async function finish(): Promise<void> {
     await finishConsult();
     toast("Konsultasi selesai — lanjut ke kasir");
-    router.push("/rekam-medis");
+    router.push("/antrian");
   }
 
   return (

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { postJson } from "@/lib/fetcher";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 
 export interface LockScreenProps {
   nama: string;
@@ -48,9 +48,8 @@ export function LockScreen({ nama, onUnlock }: LockScreenProps) {
           }}
           className="space-y-3"
         >
-          <Input
+          <PasswordInput
             label="Password"
-            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"

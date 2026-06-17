@@ -6,6 +6,7 @@ import { CONFIG } from "@/lib/config";
 import { getJson, postJson } from "@/lib/fetcher";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -88,9 +89,9 @@ export default function LoginPage() {
                 value={recoveryKey}
                 onChange={(e) => setRecoveryKey(e.target.value)}
               />
-              <Input
+              <PasswordInput
                 label="Password Baru"
-                type="password"
+                meter
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="new-password"
@@ -124,9 +125,8 @@ export default function LoginPage() {
                 onChange={(e) => setUsername(e.target.value)}
                 autoComplete="username"
               />
-              <Input
+              <PasswordInput
                 label="Password"
-                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"

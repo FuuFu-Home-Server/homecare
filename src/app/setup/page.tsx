@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { getJson, postJson } from "@/lib/fetcher";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 
 interface ClinicForm {
   nama: string;
@@ -143,8 +144,8 @@ export default function SetupPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <Input label="Username" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" />
               <Input label="Nama Lengkap" value={nama} onChange={(e) => setNama(e.target.value)} />
-              <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} error={pwErr ?? undefined} autoComplete="new-password" />
-              <Input label="Konfirmasi Password" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} error={confirmErr ?? undefined} autoComplete="new-password" />
+              <PasswordInput label="Password" meter value={password} onChange={(e) => setPassword(e.target.value)} error={pwErr ?? undefined} autoComplete="new-password" />
+              <PasswordInput label="Konfirmasi Password" value={confirm} onChange={(e) => setConfirm(e.target.value)} error={confirmErr ?? undefined} autoComplete="new-password" />
             </div>
           </div>
 

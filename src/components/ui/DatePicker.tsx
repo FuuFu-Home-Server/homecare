@@ -44,10 +44,14 @@ export function DatePicker({ value, onChange, label, error, hint, placeholder = 
   const parsed = parse(value);
   const today = parse(todayWIB());
   const [view, setView] = useState(() => parsed ?? today ?? { y: 2026, m: 0, d: 1 });
+  const [mode, setMode] = useState<"days" | "months" | "years">("days");
 
   // Re-center the calendar on the selected month each time it opens.
   useEffect(() => {
-    if (open && parsed) setView({ y: parsed.y, m: parsed.m, d: parsed.d });
+    if (open) {
+      setMode("days");
+      if (parsed) setView({ y: parsed.y, m: parsed.m, d: parsed.d });
+    }
     // Only re-sync when the popover opens.
   }, [open]);
 
@@ -101,10 +105,26 @@ export function DatePicker({ value, onChange, label, error, hint, placeholder = 
     setView({ y: next.getFullYear(), m: next.getMonth(), d: 1 });
   };
 
+  const shiftView = (delta: number): void => {
+    if (mode === "days") shiftMonth(delta);
+    else if (mode === "months") setView((v) => ({ ...v, y: v.y + delta }));
+    else setView((v) => ({ ...v, y: v.y + delta * 12 }));
+  };
+
+  const minY = min ? Number(min.slice(0, 4)) : -Infinity;
+  const maxY = max ? Number(max.slice(0, 4)) : Infinity;
+  const yearStart = view.y - ((view.y % 12) + 12) % 12;
+  const monthDisabled = (m: number): boolean =>
+    (min !== undefined && iso(view.y, m, new Date(view.y, m + 1, 0).getDate()) < min) ||
+    (max !== undefined && iso(view.y, m, 1) > max);
+
   const pick = (d: number): void => {
     onChange(iso(view.y, view.m, d));
     setOpen(false);
   };
+
+  const title =
+    mode === "days" ? `${BULAN[view.m]} ${view.y}` : mode === "months" ? `${view.y}` : `${yearStart}–${yearStart + 11}`;
 
   return (
     <div className="w-full">
@@ -135,45 +155,100 @@ export function DatePicker({ value, onChange, label, error, hint, placeholder = 
               className="z-70 rounded-xl border border-slate-200 bg-white p-3 shadow-xl"
             >
               <div className="mb-2 flex items-center justify-between">
-                <p className="text-sm font-semibold text-slate-800">
-                  {BULAN[view.m]} {view.y}
-                </p>
+                <button
+                  type="button"
+                  onClick={() => setMode((m) => (m === "days" ? "months" : m === "months" ? "years" : "days"))}
+                  className="rounded-md px-2 py-1 text-sm font-semibold text-slate-800 hover:bg-slate-100"
+                >
+                  {title}
+                </button>
                 <div className="flex gap-1">
-                  <NavBtn label="Bulan sebelumnya" onClick={() => shiftMonth(-1)}>‹</NavBtn>
-                  <NavBtn label="Bulan berikutnya" onClick={() => shiftMonth(1)}>›</NavBtn>
+                  <NavBtn label="Sebelumnya" onClick={() => shiftView(-1)}>‹</NavBtn>
+                  <NavBtn label="Berikutnya" onClick={() => shiftView(1)}>›</NavBtn>
                 </div>
               </div>
-              <div className="grid grid-cols-7 gap-0.5 text-center text-[11px] font-medium text-slate-400">
-                {HARI.map((h) => (
-                  <div key={h} className="py-1">{h}</div>
-                ))}
-              </div>
-              <div className="grid grid-cols-7 gap-0.5">
-                {cells.map((d, i) => {
-                  if (d === null) return <div key={`b${i}`} />;
-                  const s = iso(view.y, view.m, d);
-                  const isSelected = value === s;
-                  const isToday = today !== null && iso(today.y, today.m, today.d) === s;
-                  const off = disabled(d);
-                  return (
-                    <button
-                      key={d}
-                      type="button"
-                      disabled={off}
-                      onClick={() => pick(d)}
-                      className={cn(
-                        "flex h-8 items-center justify-center rounded-md text-sm transition-colors",
-                        off && "cursor-not-allowed text-slate-300",
-                        !off && isSelected && "bg-brand-600 font-semibold text-white",
-                        !off && !isSelected && isToday && "bg-brand-50 font-semibold text-brand-700",
-                        !off && !isSelected && !isToday && "text-slate-700 hover:bg-slate-100",
-                      )}
-                    >
-                      {d}
-                    </button>
-                  );
-                })}
-              </div>
+
+              {mode === "days" ? (
+                <>
+                  <div className="grid grid-cols-7 gap-0.5 text-center text-[11px] font-medium text-slate-400">
+                    {HARI.map((h) => (
+                      <div key={h} className="py-1">{h}</div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-7 gap-0.5">
+                    {cells.map((d, i) => {
+                      if (d === null) return <div key={`b${i}`} />;
+                      const s = iso(view.y, view.m, d);
+                      const isSelected = value === s;
+                      const isToday = today !== null && iso(today.y, today.m, today.d) === s;
+                      const off = disabled(d);
+                      return (
+                        <button
+                          key={d}
+                          type="button"
+                          disabled={off}
+                          onClick={() => pick(d)}
+                          className={cn(
+                            "flex h-8 items-center justify-center rounded-md text-sm transition-colors",
+                            off && "cursor-not-allowed text-slate-300",
+                            !off && isSelected && "bg-brand-600 font-semibold text-white",
+                            !off && !isSelected && isToday && "bg-brand-50 font-semibold text-brand-700",
+                            !off && !isSelected && !isToday && "text-slate-700 hover:bg-slate-100",
+                          )}
+                        >
+                          {d}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              ) : mode === "months" ? (
+                <div className="grid grid-cols-3 gap-1 py-1">
+                  {BULAN.map((b, m) => {
+                    const off = monthDisabled(m);
+                    const isCurrent = view.m === m && parsed?.y === view.y;
+                    return (
+                      <button
+                        key={b}
+                        type="button"
+                        disabled={off}
+                        onClick={() => { setView((v) => ({ ...v, m })); setMode("days"); }}
+                        className={cn(
+                          "flex h-10 items-center justify-center rounded-md text-sm transition-colors",
+                          off && "cursor-not-allowed text-slate-300",
+                          !off && isCurrent && "bg-brand-600 font-semibold text-white",
+                          !off && !isCurrent && "text-slate-700 hover:bg-slate-100",
+                        )}
+                      >
+                        {b.slice(0, 3)}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-1 py-1">
+                  {Array.from({ length: 12 }, (_, i) => yearStart + i).map((y) => {
+                    const off = y < minY || y > maxY;
+                    const isCurrent = parsed?.y === y;
+                    return (
+                      <button
+                        key={y}
+                        type="button"
+                        disabled={off}
+                        onClick={() => { setView((v) => ({ ...v, y })); setMode("months"); }}
+                        className={cn(
+                          "flex h-10 items-center justify-center rounded-md text-sm transition-colors",
+                          off && "cursor-not-allowed text-slate-300",
+                          !off && isCurrent && "bg-brand-600 font-semibold text-white",
+                          !off && !isCurrent && "text-slate-700 hover:bg-slate-100",
+                        )}
+                      >
+                        {y}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
               <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-2">
                 <button type="button" onClick={() => { onChange(""); setOpen(false); }} className="text-xs font-medium text-slate-500 hover:text-slate-700">
                   Hapus

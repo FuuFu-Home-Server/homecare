@@ -11,10 +11,14 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   hint?: string;
+  /** Static adornment inside the field, left side (e.g. "Rp"). */
+  leftAddon?: ReactNode;
+  /** Interactive adornment inside the field, right side (e.g. a show/hide toggle). */
+  rightAddon?: ReactNode;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { label, error, hint, className, id, ...rest },
+  { label, error, hint, leftAddon, rightAddon, className, id, ...rest },
   ref,
 ) {
   const autoId = useId();
@@ -22,12 +26,29 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   return (
     <div className="w-full">
       {label ? <Label htmlFor={fieldId}>{label}</Label> : null}
-      <input
-        ref={ref}
-        id={fieldId}
-        className={cn(FIELD_BASE, "h-10", error ? "border-red-400" : "border-slate-300", className)}
-        {...rest}
-      />
+      <div className="relative">
+        {leftAddon ? (
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+            {leftAddon}
+          </span>
+        ) : null}
+        <input
+          ref={ref}
+          id={fieldId}
+          className={cn(
+            FIELD_BASE,
+            "h-10",
+            leftAddon ? "pl-9" : null,
+            rightAddon ? "pr-10" : null,
+            error ? "border-red-400" : "border-slate-300",
+            className,
+          )}
+          {...rest}
+        />
+        {rightAddon ? (
+          <span className="absolute right-1.5 top-1/2 flex -translate-y-1/2 items-center">{rightAddon}</span>
+        ) : null}
+      </div>
       <FieldMessage error={error} hint={hint} />
     </div>
   );

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { CustomSelect } from "@/components/ui/CustomSelect";
 import { Combobox } from "@/components/ui/Combobox";
 import { StatusPill } from "@/components/ui/StatusPill";
@@ -260,11 +260,10 @@ export function BillView({ visitId }: BillViewProps) {
 
                   {metode === "tunai" ? (
                     <>
-                      <Input
+                      <MoneyInput
                         label="Uang Diterima"
-                        inputMode="numeric"
-                        value={formatThousands(dibayar)}
-                        onChange={(e) => setDibayar(e.target.value.replace(/\D/g, ""))}
+                        value={dibayar}
+                        onChange={setDibayar}
                         placeholder={formatThousands(total)}
                       />
                       <div className="flex gap-1.5">

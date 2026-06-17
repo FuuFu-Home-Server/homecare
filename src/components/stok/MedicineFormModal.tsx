@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input, Label } from "@/components/ui/Input";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { CustomSelect } from "@/components/ui/CustomSelect";
 import { useToast } from "@/components/ui/Toast";
 import type { BentukObat, CreateMedicineInput } from "@/types";
@@ -25,24 +26,20 @@ const BENTUK: { value: BentukObat; label: string }[] = [
 
 interface FormState {
   nama: string;
-  merek: string;
   bentuk: BentukObat;
   satuan: string;
   hargaJual: string;
   obatKeras: boolean;
   isConsumable: boolean;
-  supplier: string;
 }
 
 const EMPTY: FormState = {
   nama: "",
-  merek: "",
   bentuk: "tablet",
   satuan: "",
   hargaJual: "",
   obatKeras: false,
   isConsumable: false,
-  supplier: "",
 };
 
 export function MedicineFormModal({ open, onClose, onSubmit }: MedicineFormModalProps) {
@@ -76,13 +73,13 @@ export function MedicineFormModal({ open, onClose, onSubmit }: MedicineFormModal
     try {
       await onSubmit({
         nama: form.nama.trim(),
-        merek: form.merek.trim() || null,
+        merek: null,
         bentuk: form.bentuk,
         satuan: form.satuan.trim(),
         hargaJual: Math.round(harga),
         obatKeras: form.obatKeras,
         isConsumable: form.isConsumable,
-        supplier: form.supplier.trim() || null,
+        supplier: null,
       });
       toast("Obat ditambahkan");
       onClose();
@@ -112,20 +109,21 @@ export function MedicineFormModal({ open, onClose, onSubmit }: MedicineFormModal
       }
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <Input label="Nama (generik)" value={form.nama} onChange={(e) => set("nama", e.target.value)} />
-        <Input label="Merek (opsional)" value={form.merek} onChange={(e) => set("merek", e.target.value)} />
+        <div className="sm:col-span-2">
+          <Input label="Nama (generik)" value={form.nama} onChange={(e) => set("nama", e.target.value)} />
+        </div>
         <div>
           <Label>Bentuk</Label>
           <CustomSelect value={form.bentuk} onChange={(v) => set("bentuk", bentuk(v))} options={BENTUK} />
         </div>
         <Input label="Satuan" value={form.satuan} onChange={(e) => set("satuan", e.target.value)} placeholder="tablet, botol, ampul" />
-        <Input
-          label="Harga Jual (Rp)"
-          inputMode="numeric"
-          value={form.hargaJual}
-          onChange={(e) => set("hargaJual", e.target.value.replace(/\D/g, ""))}
-        />
-        <Input label="Supplier (opsional)" value={form.supplier} onChange={(e) => set("supplier", e.target.value)} />
+        <div className="sm:col-span-2">
+          <MoneyInput
+            label="Harga Jual"
+            value={form.hargaJual}
+            onChange={(v) => set("hargaJual", v)}
+          />
+        </div>
         <div className="flex items-center gap-4 sm:col-span-2">
           <label className="flex items-center gap-2 text-sm text-slate-700">
             <input

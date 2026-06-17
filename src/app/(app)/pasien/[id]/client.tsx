@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useDynamicSegment } from "@/hooks/useRouteParam";
 import { getJson } from "@/lib/fetcher";
 import { PatientDetail } from "@/components/pasien/PatientDetail";
 import type { Patient, PatientHistoryItem } from "@/types";
@@ -12,17 +12,17 @@ interface PatientDetailResponse {
 }
 
 export function PatientDetailClient() {
-  const params = useParams<{ id: string }>();
+  const id = useDynamicSegment();
   const [data, setData] = useState<PatientDetailResponse | null>(null);
   const [missing, setMissing] = useState(false);
 
   useEffect(() => {
     setData(null);
     setMissing(false);
-    getJson<PatientDetailResponse>(`/api/patients/${params.id}`)
+    getJson<PatientDetailResponse>(`/api/patients/${id}`)
       .then(setData)
       .catch(() => setMissing(true));
-  }, [params.id]);
+  }, [id]);
 
   if (missing) {
     return <p className="text-sm text-slate-400">Pasien tidak ditemukan.</p>;

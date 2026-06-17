@@ -111,7 +111,7 @@ export function AntrianView() {
   return (
     <>
       <PageHeader
-        title="Antrian & Booking"
+        title="Kunjungan"
         description={`Antrian hari ini · ${tglWIB(today)}`}
         action={
           <Button leftIcon={<IconPlus className="h-4 w-4" />} onClick={() => setBookingOpen(true)}>

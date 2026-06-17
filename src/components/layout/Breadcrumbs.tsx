@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 const SEG_LABEL: Record<string, string> = {
   dashboard: "Dashboard",
   pasien: "Pasien",
-  antrian: "Antrian & Booking",
+  antrian: "Kunjungan",
   "rekam-medis": "Rekam Medis",
   riwayat: "Riwayat",
   stok: "Stok & Obat",

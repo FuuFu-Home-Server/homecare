@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useDynamicSegment } from "@/hooks/useRouteParam";
 import { getJson } from "@/lib/fetcher";
 import { PrintButton } from "@/components/print/PrintButton";
 import { rupiah, tglJamWIB } from "@/lib/format";
@@ -18,7 +18,7 @@ interface StrukResponse {
 }
 
 export function StrukClient() {
-  const params = useParams<{ billId: string }>();
+  const billId = useDynamicSegment();
   const [data, setData] = useState<StrukResponse | null>(null);
   const [clinic, setClinic] = useState<ClinicConfig | null>(null);
   const [missing, setMissing] = useState(false);
@@ -29,7 +29,7 @@ export function StrukClient() {
     void (async () => {
       try {
         const [struk, c] = await Promise.all([
-          getJson<StrukResponse>(`/api/bills/${params.billId}`),
+          getJson<StrukResponse>(`/api/bills/${billId}`),
           getJson<{ clinic: ClinicConfig }>("/api/clinic"),
         ]);
         setData(struk);
@@ -38,7 +38,7 @@ export function StrukClient() {
         setMissing(true);
       }
     })();
-  }, [params.billId]);
+  }, [billId]);
 
   if (missing) {
     return <p className="p-8 text-sm text-slate-400">Struk tidak ditemukan.</p>;
