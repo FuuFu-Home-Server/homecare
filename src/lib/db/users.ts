@@ -65,6 +65,12 @@ export function listUsers(): User[] {
     .map(toUser);
 }
 
+/** Total accounts — zero means the app needs first-run setup. */
+export function countUsers(): number {
+  const row = getDb().prepare<[], { c: number }>("SELECT COUNT(*) AS c FROM users").get();
+  return row?.c ?? 0;
+}
+
 export function createUser(input: CreateUserInput): User {
   const db = getDb();
   const res = db

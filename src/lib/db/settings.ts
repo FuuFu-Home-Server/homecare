@@ -30,8 +30,16 @@ export function getClinic(): ClinicConfig {
 export function updateClinic(input: ClinicConfig): ClinicConfig {
   getDb()
     .prepare<[string, string, string, string, string, string, string, string, string]>(
-      `UPDATE clinic_settings SET nama = ?, penanggung_jawab = ?, sipp = ?, alamat = ?, kota = ?,
-              telepon = ?, app_title = ?, struk_footer = ?, struk_footer2 = ? WHERE id = 1`,
+      // Upsert: a freshly-bootstrapped DB has no clinic_settings row yet (the
+      // setup wizard is the first writer), so plain UPDATE would no-op.
+      `INSERT INTO clinic_settings
+         (id, nama, penanggung_jawab, sipp, alamat, kota, telepon, app_title, struk_footer, struk_footer2)
+       VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(id) DO UPDATE SET
+         nama = excluded.nama, penanggung_jawab = excluded.penanggung_jawab, sipp = excluded.sipp,
+         alamat = excluded.alamat, kota = excluded.kota, telepon = excluded.telepon,
+         app_title = excluded.app_title, struk_footer = excluded.struk_footer,
+         struk_footer2 = excluded.struk_footer2`,
     )
     .run(
       input.nama,

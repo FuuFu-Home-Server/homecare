@@ -9,7 +9,13 @@ export interface RoutePolicy {
 const BOTH: ReadonlyArray<Role> = ["asisten", "perawat"];
 const PERAWAT: ReadonlyArray<Role> = ["perawat"];
 
-const PUBLIC_PATHS = new Set(["/api/auth/login", "/api/auth/logout", "/api/auth/me"]);
+const PUBLIC_PATHS = new Set([
+  "/api/auth/login",
+  "/api/auth/logout",
+  "/api/auth/me",
+  "/api/setup",
+  "/api/setup/status",
+]);
 
 /** Perawat-only: Rekam Medis, Penggajian, Manajemen Staf — by route template. */
 // Note: /api/treatments is the tindakan price list read by Kasir (asisten), so

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CONFIG } from "@/lib/config";
-import { postJson } from "@/lib/fetcher";
+import { getJson, postJson } from "@/lib/fetcher";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
@@ -13,6 +13,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    getJson<{ needsSetup: boolean }>("/api/setup/status")
+      .then((s) => {
+        if (s.needsSetup) router.replace("/setup");
+      })
+      .catch(() => undefined);
+  }, [router]);
 
   async function submit(u: string, p: string): Promise<void> {
     setBusy(true);
