@@ -17,6 +17,7 @@ export function PatientDetailClient() {
   const [missing, setMissing] = useState(false);
 
   useEffect(() => {
+    if (!id) return;
     setData(null);
     setMissing(false);
     getJson<PatientDetailResponse>(`/api/patients/${id}`)
@@ -24,6 +25,9 @@ export function PatientDetailClient() {
       .catch(() => setMissing(true));
   }, [id]);
 
+  if (!id) {
+    return <p className="text-sm text-slate-400">Memuat…</p>;
+  }
   if (missing) {
     return <p className="text-sm text-slate-400">Pasien tidak ditemukan.</p>;
   }

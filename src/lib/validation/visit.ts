@@ -1,15 +1,28 @@
 import { z } from "zod";
 import { numLike, optNum, optText, parse, reqText } from "@/lib/validation/common";
+import { CONFIG } from "@/lib/config";
 import type { AntrianStatus, InterventionKategori, SoapInput, VitalsInput } from "@/types";
+import type { VitalRange } from "@/lib/config";
 
-const vitalsSchema = z.object({
-  keluhanUtama: reqText("Keluhan utama wajib diisi."),
-  tdSistol: optNum,
-  tdDiastol: optNum,
-  suhu: optNum,
-  berat: optNum,
-  tinggi: optNum,
-});
+const ranged = (r: VitalRange) =>
+  optNum.refine(
+    (n) => n == null || (n >= r.min && n <= r.max),
+    `${r.label} harus antara ${r.min}–${r.max}.`,
+  );
+
+const vitalsSchema = z
+  .object({
+    keluhanUtama: reqText("Keluhan utama wajib diisi."),
+    tdSistol: ranged(CONFIG.vitals.tdSistol),
+    tdDiastol: ranged(CONFIG.vitals.tdDiastol),
+    suhu: ranged(CONFIG.vitals.suhu),
+    berat: ranged(CONFIG.vitals.berat),
+    tinggi: ranged(CONFIG.vitals.tinggi),
+  })
+  .refine(
+    (v) => v.tdSistol == null || v.tdDiastol == null || v.tdSistol > v.tdDiastol,
+    "Sistol harus lebih tinggi dari diastol.",
+  );
 
 const interventionSchema = z.object({
   kategori: z.enum(["masalah", "etiologi", "intervensi"], {

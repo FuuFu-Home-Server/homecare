@@ -44,6 +44,20 @@ export interface AppConfig {
     /** Auto-lock the screen after this many idle minutes. */
     idleLockMinutes: number;
   };
+  /** Plausible physiological bounds for vitals; values outside reject. */
+  vitals: {
+    tdSistol: VitalRange;
+    tdDiastol: VitalRange;
+    suhu: VitalRange;
+    berat: VitalRange;
+    tinggi: VitalRange;
+  };
+}
+
+export interface VitalRange {
+  min: number;
+  max: number;
+  label: string;
 }
 
 export const CONFIG: AppConfig = {
@@ -68,6 +82,13 @@ export const CONFIG: AppConfig = {
   pageSizeOptions: [10, 25, 50],
   security: {
     idleLockMinutes: 15,
+  },
+  vitals: {
+    tdSistol: { min: 60, max: 300, label: "Tekanan darah sistol" },
+    tdDiastol: { min: 30, max: 200, label: "Diastol" },
+    suhu: { min: 30, max: 45, label: "Suhu" },
+    berat: { min: 1, max: 400, label: "Berat badan" },
+    tinggi: { min: 20, max: 250, label: "Tinggi badan" },
   },
   backup: {
     keepLast: 14,

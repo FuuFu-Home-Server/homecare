@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
-import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import type { ReactNode } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
 export type ToastTone = "success" | "error" | "info";
 
@@ -50,14 +50,14 @@ export function ToastProvider({ children }: ToastProviderProps) {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className="no-print pointer-events-none fixed inset-x-0 bottom-4 z-[100] flex flex-col items-center gap-2 px-4 sm:bottom-6">
+      <div className="no-print pointer-events-none fixed inset-x-0 top-4 z-100 flex flex-col items-center gap-2 px-4 sm:top-6">
         {items.map((t) => (
           <div
             key={t.id}
             role="status"
             className={cn(
               "pointer-events-auto w-full max-w-sm rounded-lg border px-4 py-3 text-sm font-medium shadow-lg",
-              "animate-in fade-in slide-in-from-bottom-2",
+              "animate-in fade-in slide-in-from-top-2",
               TONE_STYLE[t.tone],
             )}
           >

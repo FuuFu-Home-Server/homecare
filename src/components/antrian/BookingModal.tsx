@@ -79,9 +79,9 @@ export function BookingModal({ open, onClose, patients, preselected, onSubmit }:
           onClear={() => setPatient(null)}
           getKey={(p) => p.id}
           getLabel={(p) => p.nama}
-          getFilterText={(p) => `${p.nama} ${p.nik}`}
-          getSublabel={(p) => `NIK ${formatNik(p.nik)}`}
-          placeholder="Cari nama atau NIK…"
+          getFilterText={(p) => `${p.nama} ${p.nik} ${p.noRm}`}
+          getSublabel={(p) => `${p.noRm} · NIK ${formatNik(p.nik)}`}
+          placeholder="Cari nama, No. RM, atau NIK…"
           emptyText="Pasien tidak ditemukan"
         />
 

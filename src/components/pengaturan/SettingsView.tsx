@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
+import { Input, Textarea } from "@/components/ui/Input";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { StaffManager } from "@/components/pengaturan/StaffManager";
 import { ScheduleEditor } from "@/components/pengaturan/ScheduleEditor";
 import { BackupManager } from "@/components/pengaturan/BackupManager";
+import { DangerZone } from "@/components/pengaturan/DangerZone";
 import { AppSettings } from "@/components/pengaturan/AppSettings";
 import { useAuth } from "@/hooks/useAuth";
 import { useClinic } from "@/hooks/useClinic";
@@ -18,7 +19,7 @@ import { patchJson } from "@/lib/fetcher";
 import { cn } from "@/lib/cn";
 import type { ClinicConfig } from "@/lib/config";
 
-type Tab = "klinik" | "jadwal" | "akun" | "staf" | "cadangan" | "aplikasi";
+type Tab = "klinik" | "jadwal" | "akun" | "staf" | "cadangan" | "aplikasi" | "bahaya";
 
 const TAB_KEY = "pengaturan.tab";
 
@@ -38,6 +39,7 @@ export function SettingsView() {
       ? [
           { id: "staf" as const, label: "Manajemen Staf" },
           { id: "cadangan" as const, label: "Cadangan Data" },
+          { id: "bahaya" as const, label: "Zona Berbahaya" },
         ]
       : []),
     ...(isDesktop ? [{ id: "aplikasi" as const, label: "Aplikasi" }] : []),
@@ -52,7 +54,7 @@ export function SettingsView() {
       "klinik",
       "jadwal",
       "akun",
-      ...(user.role === "perawat" ? (["staf", "cadangan"] as Tab[]) : []),
+      ...(user.role === "perawat" ? (["staf", "cadangan", "bahaya"] as Tab[]) : []),
       ...(window.homecare ? (["aplikasi"] as Tab[]) : []),
     ];
     if (saved && allowed.includes(saved)) setTab(saved);
@@ -73,7 +75,7 @@ export function SettingsView() {
             type="button"
             onClick={() => selectTab(t.id)}
             className={cn(
-              "flex-1 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              "flex-1 cursor-pointer whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
               tab === t.id ? "bg-brand-600 text-white" : "text-slate-600 hover:bg-slate-50",
             )}
           >
@@ -87,6 +89,7 @@ export function SettingsView() {
       {tab === "akun" ? <AccountForm initialNama={user.nama} /> : null}
       {tab === "staf" && user.role === "perawat" ? <StaffManager currentUserId={user.userId} /> : null}
       {tab === "cadangan" && user.role === "perawat" ? <BackupManager /> : null}
+      {tab === "bahaya" && user.role === "perawat" ? <DangerZone /> : null}
       {tab === "aplikasi" && isDesktop ? <AppSettings /> : null}
     </>
   );
@@ -131,7 +134,9 @@ function ClinicForm() {
           <Input label="Nomor SIPP" value={form.sipp} onChange={(e) => set("sipp", e.target.value)} error={req(form.sipp)} />
           <Input label="Kota" value={form.kota} onChange={(e) => set("kota", e.target.value)} error={req(form.kota)} />
           <Input label="Telepon" value={form.telepon} onChange={(e) => set("telepon", e.target.value)} error={req(form.telepon)} />
-          <Input label="Alamat" value={form.alamat} onChange={(e) => set("alamat", e.target.value)} error={req(form.alamat)} />
+          <div className="sm:col-span-2">
+            <Textarea label="Alamat" rows={2} value={form.alamat} onChange={(e) => set("alamat", e.target.value)} error={req(form.alamat)} />
+          </div>
         </div>
 
         <div className="border-t border-slate-100 pt-4">

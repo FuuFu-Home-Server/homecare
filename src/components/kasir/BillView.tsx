@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -13,6 +12,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { IconClose, IconPrint } from "@/components/layout/icons";
+import { StrukModal } from "@/components/kasir/StrukModal";
 import { useKasir } from "@/hooks/useKasir";
 import { rupiah, umur, formatThousands } from "@/lib/format";
 import { JAMINAN_META, METODE_LABEL } from "@/lib/status";
@@ -45,6 +45,7 @@ export function BillView({ visitId }: BillViewProps) {
   const [diskonInput, setDiskonInput] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [paidId, setPaidId] = useState<number | null>(null);
+  const [strukOpen, setStrukOpen] = useState(false);
 
   if (loading) {
     return (
@@ -234,11 +235,13 @@ export function BillView({ visitId }: BillViewProps) {
                       </p>
                     ) : null}
                   </div>
-                  <Link href={`/print/struk/${billId}`} target="_blank" className="block">
-                    <Button leftIcon={<IconPrint className="h-4 w-4" />} className="w-full">
-                      Cetak Struk
-                    </Button>
-                  </Link>
+                  <Button
+                    leftIcon={<IconPrint className="h-4 w-4" />}
+                    className="w-full"
+                    onClick={() => setStrukOpen(true)}
+                  >
+                    Lihat Struk
+                  </Button>
                   <Button variant="secondary" className="w-full" onClick={() => router.push("/kasir")}>
                     Selesai
                   </Button>
@@ -295,6 +298,8 @@ export function BillView({ visitId }: BillViewProps) {
           </Card>
         </div>
       </div>
+
+      <StrukModal open={strukOpen} onClose={() => setStrukOpen(false)} billId={billId} />
     </>
   );
 }

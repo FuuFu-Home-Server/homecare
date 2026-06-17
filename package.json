@@ -1,9 +1,10 @@
 {
   "name": "homecare",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "private": true,
   "main": "dist-electron/main.js",
   "scripts": {
+    "postinstall": "electron-rebuild -f -w better-sqlite3-multiple-ciphers",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

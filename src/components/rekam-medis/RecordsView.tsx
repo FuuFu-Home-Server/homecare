@@ -14,6 +14,7 @@ import { getJson } from "@/lib/fetcher";
 import { tglWIB, todayWIB, umur } from "@/lib/format";
 import { ANTRIAN_META, JAMINAN_META } from "@/lib/status";
 import { downloadXlsx } from "@/lib/xlsx";
+import { fileSlug } from "@/lib/filename";
 import type { JenisKelamin, MedicalRecordExportRow, QueueEntry } from "@/types";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -85,7 +86,7 @@ export function RecordsView() {
         return;
       }
       await downloadXlsx(
-        `riwayat-rekam-medis${from ? `-${from}` : ""}${to ? `-${to}` : ""}`,
+        fileSlug("riwayat-rekam-medis", from, to),
         "Riwayat Rekam Medis",
         [
           { header: "Tanggal", key: "tanggal", width: 12 },

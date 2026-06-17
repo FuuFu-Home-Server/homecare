@@ -22,6 +22,17 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Tailwind v4 reset buttons/links to `cursor: default`; restore the v3 pointer
+   for interactive controls. Disabled buttons keep the not-allowed cursor. */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
 body {
   background-color: #f8fafc; /* slate-50 */
   color: #0f172a; /* slate-900 */
@@ -54,5 +65,22 @@ body {
     padding: 0 !important;
     max-width: none !important;
     width: 100% !important;
+  }
+
+  /* Struk PDF/print: isolate the receipt so only it lands on the page. Scoped to
+     the body class set during export, so other print flows are unaffected. */
+  body.struk-printing * {
+    visibility: hidden;
+  }
+  body.struk-printing .struk-print-region,
+  body.struk-printing .struk-print-region * {
+    visibility: visible;
+  }
+  body.struk-printing .struk-print-region {
+    position: fixed;
+    inset: 0;
+    margin: 0 auto;
+    border: 0 !important;
+    box-shadow: none !important;
   }
 }

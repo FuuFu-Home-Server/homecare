@@ -314,7 +314,7 @@ function FilterMenu<T>({ columns, options, values, onChange, onReset }: FilterMe
         type="button"
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-sm font-medium transition-colors",
+          "inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border px-3 text-sm font-medium transition-colors",
           activeCount > 0
             ? "border-brand-300 bg-brand-50 text-brand-700"
             : "border-slate-300 bg-white text-slate-600 hover:bg-slate-50",
@@ -337,7 +337,7 @@ function FilterMenu<T>({ columns, options, values, onChange, onReset }: FilterMe
               <button
                 type="button"
                 onClick={onReset}
-                className="text-xs font-medium text-slate-500 hover:text-brand-700"
+                className="cursor-pointer text-xs font-medium text-slate-500 hover:text-brand-700"
               >
                 Reset semua
               </button>

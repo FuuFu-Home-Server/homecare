@@ -8,7 +8,7 @@ import { StatusPill } from "@/components/ui/StatusPill";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { DropdownMenu } from "@/components/ui/DropdownMenu";
-import { Input, Label } from "@/components/ui/Input";
+import { Input, Label, Textarea } from "@/components/ui/Input";
 import { MoneyInput } from "@/components/ui/MoneyInput";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { CustomSelect } from "@/components/ui/CustomSelect";
@@ -309,7 +309,7 @@ function AddStaffModal({
           error={passwordErr ?? undefined}
         />
         <Input label="Telepon (opsional)" value={telepon} onChange={(e) => setTelepon(e.target.value)} />
-        <Input label="Alamat (opsional)" value={alamat} onChange={(e) => setAlamat(e.target.value)} />
+        <Textarea label="Alamat (opsional)" rows={2} value={alamat} onChange={(e) => setAlamat(e.target.value)} />
         <Input
           label="Tanggal Mulai Kerja (opsional)"
           type="date"
@@ -425,7 +425,7 @@ function EditStaffModal({
           />
         </div>
         <Input label="Telepon (opsional)" value={telepon} onChange={(e) => setTelepon(e.target.value)} />
-        <Input label="Alamat (opsional)" value={alamat} onChange={(e) => setAlamat(e.target.value)} />
+        <Textarea label="Alamat (opsional)" rows={2} value={alamat} onChange={(e) => setAlamat(e.target.value)} />
         <Input
           label="Tanggal Mulai Kerja (opsional)"
           type="date"

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -39,6 +40,21 @@ export function ConsultView({ visitId, backHref = "/antrian" }: ConsultViewProps
     finishConsult,
   } = useConsult(visitId);
 
+  // Surface "Selesai Konsultasi" as a floating action once the header scrolls off.
+  const headerRef = useRef<HTMLDivElement | null>(null);
+  const [showFinishFab, setShowFinishFab] = useState(false);
+  const [finishing, setFinishing] = useState(false);
+
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) =>
+      setShowFinishFab(Boolean(e) && !e?.isIntersecting),
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [loading, bundle]);
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -66,25 +82,36 @@ export function ConsultView({ visitId, backHref = "/antrian" }: ConsultViewProps
   const locked = !canEdit || entry.status === "selesai" || entry.status === "batal";
 
   async function finish(): Promise<void> {
-    await finishConsult();
-    toast("Konsultasi selesai — lanjut ke kasir");
-    router.push("/antrian");
+    setFinishing(true);
+    try {
+      await finishConsult();
+      toast("Konsultasi selesai — lanjut ke kasir");
+      router.push("/antrian");
+    } finally {
+      setFinishing(false);
+    }
   }
 
   return (
     <>
-      <PageHeader
-        title={`Pemeriksaan — ${patient.nama}`}
-        description={`No. RM ${patient.noRm} · Antrian #${entry.nomorAntrian} · ${umur(patient.tglLahir)} th · NIK ${formatNik(patient.nik)}`}
-        action={
-          <>
-            <Button variant="secondary" onClick={() => router.push(backHref)}>
-              Kembali
-            </Button>
-            {locked ? null : <Button onClick={finish}>Selesai Konsultasi</Button>}
-          </>
-        }
-      />
+      <div ref={headerRef}>
+        <PageHeader
+          title={`Pemeriksaan — ${patient.nama}`}
+          description={`No. RM ${patient.noRm} · Antrian #${entry.nomorAntrian} · ${umur(patient.tglLahir)} th · NIK ${formatNik(patient.nik)}`}
+          action={
+            <>
+              <Button variant="secondary" onClick={() => router.push(backHref)}>
+                Kembali
+              </Button>
+              {locked ? null : (
+                <Button onClick={finish} loading={finishing}>
+                  Selesai Konsultasi
+                </Button>
+              )}
+            </>
+          }
+        />
+      </div>
 
       {locked ? (
         <div className="mb-4 flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600">
@@ -179,6 +206,20 @@ export function ConsultView({ visitId, backHref = "/antrian" }: ConsultViewProps
           </Card>
         </div>
       </div>
+
+      {showFinishFab && !locked ? (
+        <div className="fixed bottom-6 left-1/2 z-40 -translate-x-1/2 lg:bottom-8">
+          <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-lg shadow-brand-900/15 ring-1 ring-black/5">
+            <div className="text-sm">
+              <p className="font-medium text-slate-800">Sudah selesai memeriksa?</p>
+              <p className="text-xs text-slate-500">Tutup konsultasi dan lanjut ke kasir.</p>
+            </div>
+            <Button onClick={finish} loading={finishing}>
+              Selesai Konsultasi
+            </Button>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }

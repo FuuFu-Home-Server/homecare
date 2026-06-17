@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -10,6 +9,7 @@ import { CustomSelect } from "@/components/ui/CustomSelect";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { DataTable } from "@/components/ui/DataTable";
+import { StrukModal } from "@/components/kasir/StrukModal";
 import { printDocument } from "@/lib/print";
 import type { Column } from "@/components/ui/DataTable";
 import { RevenueChart, VisitChart } from "@/components/dashboard/TrendChart";
@@ -17,7 +17,8 @@ import { StatCard } from "@/components/dashboard/StatCard";
 import { IconKasir, IconLaporan, IconStok, IconRekamMedis, IconPrint, IconDownload } from "@/components/layout/icons";
 import { useReports } from "@/hooks/useReports";
 import { downloadCsv } from "@/lib/csv";
-import { rupiah, tglWIB, tglJamWIB, monthWIB, daysUntil } from "@/lib/format";
+import { fileSlug } from "@/lib/filename";
+import { rupiah, tglWIB, tglJamWIB, monthWIB, todayWIB, daysUntil } from "@/lib/format";
 import { METODE_LABEL, JAMINAN_META } from "@/lib/status";
 import { cn } from "@/lib/cn";
 import type {
@@ -128,7 +129,7 @@ function Keuangan({ data, month }: { data: FinancialReport; month: string }) {
                 leftIcon={<IconDownload className="h-4 w-4" />}
                 onClick={() =>
                   downloadCsv(
-                    `keuangan-${month}`,
+                    fileSlug("laporan-keuangan", month),
                     ["Kategori", "Nilai"],
                     [
                       ["Pendapatan", data.pendapatan],
@@ -188,6 +189,7 @@ function Transaksi({
 }) {
   const totalTransaksi = transactions.reduce((s, t) => s + t.total, 0);
   const totalPengeluaran = expenses.reduce((s, e) => s + e.jumlah, 0);
+  const [strukId, setStrukId] = useState<number | null>(null);
 
   const txColumns = useMemo<Column<TransactionRow>[]>(
     () => [
@@ -230,17 +232,17 @@ function Transaksi({
         header: "Struk",
         align: "right",
         render: (t) => (
-          <Link
-            href={`/print/struk/${t.id}`}
-            target="_blank"
+          <button
+            type="button"
+            onClick={() => setStrukId(t.id)}
             className="no-print inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm font-medium text-brand-600 hover:bg-brand-50"
           >
             <IconPrint className="h-4 w-4" /> Struk
-          </Link>
+          </button>
         ),
       },
     ],
-    [],
+    [setStrukId],
   );
 
   const expColumns = useMemo<Column<ExpenseRow>[]>(
@@ -291,7 +293,7 @@ function Transaksi({
               <CsvButton
                 onClick={() =>
                   downloadCsv(
-                    `transaksi-${month}`,
+                    fileSlug("transaksi", month),
                     ["Waktu", "Pasien", "Metode", "Jaminan", "Total"],
                     transactions.map((t) => [
                       tglJamWIB(t.paidAt),
@@ -325,7 +327,7 @@ function Transaksi({
               <CsvButton
                 onClick={() =>
                   downloadCsv(
-                    `pengeluaran-${month}`,
+                    fileSlug("pengeluaran", month),
                     ["Tanggal", "Kategori", "Deskripsi", "Jumlah"],
                     expenses.map((e) => [tglWIB(e.tanggal), e.kategori, e.deskripsi, e.jumlah]),
                   )
@@ -335,6 +337,8 @@ function Transaksi({
           }
         />
       </section>
+
+      <StrukModal open={strukId != null} onClose={() => setStrukId(null)} billId={strukId ?? 0} />
     </div>
   );
 }
@@ -349,7 +353,7 @@ function Klinis({ data, month }: { data: ClinicalReport; month: string }) {
       <RankCard
         title="Tindakan Terbanyak"
         items={data.topTreatments}
-        onExport={() => downloadCsv(`tindakan-${month}`, ["Tindakan", "Jumlah"], data.topTreatments.map((d) => [d.label, d.count]))}
+        onExport={() => downloadCsv(fileSlug("tindakan-teratas", month), ["Tindakan", "Jumlah"], data.topTreatments.map((d) => [d.label, d.count]))}
       />
     </div>
   );
@@ -368,7 +372,7 @@ function Inventaris({ data }: { data: InventoryReport }) {
           title="Obat Fast-Moving"
           items={data.fastMoving}
           unit=" terjual"
-          onExport={() => downloadCsv("fast-moving", ["Obat", "Terjual"], data.fastMoving.map((d) => [d.label, d.count]))}
+          onExport={() => downloadCsv(fileSlug("obat-fast-moving", todayWIB()), ["Obat", "Terjual"], data.fastMoving.map((d) => [d.label, d.count]))}
         />
         <Card>
           <CardHeader title="Hampir Kadaluarsa" />

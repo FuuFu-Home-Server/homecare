@@ -21,7 +21,7 @@ const PUBLIC_PATHS = new Set([
 /** Perawat-only: Rekam Medis, Penggajian, Manajemen Staf — by route template. */
 // Note: /api/treatments is the tindakan price list read by Kasir (asisten), so
 // it is intentionally NOT perawat-only.
-const PERAWAT_PREFIXES = ["/api/records", "/api/payroll", "/api/users", "/api/backup"];
+const PERAWAT_PREFIXES = ["/api/records", "/api/payroll", "/api/users", "/api/backup", "/api/admin"];
 // Perawat-only for ALL methods (these are clinical writes by nature).
 const PERAWAT_TEMPLATES = [
   /^\/api\/visits\/\[id\]\/(soap|interventions)$/,
