@@ -2,26 +2,7 @@ import { NextResponse } from "next/server";
 import { createSoapNote } from "@/lib/db/records";
 import { getVisit, updateStatus } from "@/lib/db/queue";
 import { currentUser } from "@/lib/session";
-import type { SoapInput } from "@/types";
-
-function s(v: unknown): string | null {
-  return typeof v === "string" && v.trim() !== "" ? v.trim() : null;
-}
-
-function parse(data: unknown): SoapInput | string {
-  if (typeof data !== "object" || data === null) return "Data tidak valid.";
-  const rec: Record<string, unknown> = Object.fromEntries(Object.entries(data));
-  const subjective = s(rec.subjective);
-  const objective = s(rec.objective);
-  const assessment = s(rec.assessment);
-  const plan = s(rec.plan);
-  if (!subjective && !objective && !assessment && !plan) {
-    return "Minimal satu bagian SOAP harus diisi.";
-  }
-  const amendsId =
-    typeof rec.amendsId === "number" && Number.isInteger(rec.amendsId) ? rec.amendsId : null;
-  return { subjective, objective, assessment, plan, amendsId };
-}
+import { parseSoap } from "@/lib/validation/visit";
 
 export async function POST(
   request: Request,
@@ -36,7 +17,7 @@ export async function POST(
   const visit = getVisit(visitId);
   if (!visit) return NextResponse.json({ error: "Kunjungan tidak ditemukan." }, { status: 404 });
 
-  const parsed = parse(await request.json().catch(() => null));
+  const parsed = parseSoap(await request.json().catch(() => null));
   if (typeof parsed === "string") return NextResponse.json({ error: parsed }, { status: 400 });
 
   const note = createSoapNote(visitId, user.userId, parsed);

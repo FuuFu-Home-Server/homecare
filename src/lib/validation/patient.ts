@@ -1,65 +1,51 @@
+import { z } from "zod";
+import { optEnum, optText, parse, reqText } from "@/lib/validation/common";
 import type {
   Agama,
   Alkohol,
   CreatePatientInput,
-  JenisKelamin,
-  Jaminan,
   Merokok,
   Pendidikan,
   StatusNikah,
 } from "@/types";
 
-function str(v: unknown): string | null {
-  return typeof v === "string" && v.trim() !== "" ? v.trim() : null;
-}
+const AGAMA = ["Islam", "Kristen", "Katolik", "Hindu", "Buddha", "Konghucu"] as const satisfies readonly Agama[];
+const PENDIDIKAN = ["Tidak Sekolah", "SD", "SMP", "SMA", "D3", "S1", "S2", "S3"] as const satisfies readonly Pendidikan[];
+const STATUS_NIKAH = ["Belum Menikah", "Menikah", "Cerai Hidup", "Cerai Mati"] as const satisfies readonly StatusNikah[];
+const MEROKOK = ["Tidak Merokok", "Perokok Aktif", "Mantan Perokok"] as const satisfies readonly Merokok[];
+const ALKOHOL = ["Tidak", "Kadang-kadang", "Sering"] as const satisfies readonly Alkohol[];
 
-const AGAMA: ReadonlyArray<Agama> = ["Islam", "Kristen", "Katolik", "Hindu", "Buddha", "Konghucu"];
-const PENDIDIKAN: ReadonlyArray<Pendidikan> = ["Tidak Sekolah", "SD", "SMP", "SMA", "D3", "S1", "S2", "S3"];
-const STATUS_NIKAH: ReadonlyArray<StatusNikah> = ["Belum Menikah", "Menikah", "Cerai Hidup", "Cerai Mati"];
-const MEROKOK: ReadonlyArray<Merokok> = ["Tidak Merokok", "Perokok Aktif", "Mantan Perokok"];
-const ALKOHOL: ReadonlyArray<Alkohol> = ["Tidak", "Kadang-kadang", "Sering"];
-
-function oneOf<T extends string>(v: unknown, allowed: ReadonlyArray<T>): T | null {
-  return typeof v === "string" ? allowed.find((a) => a === v) ?? null : null;
-}
+const patientSchema = z
+  .object({
+    nik: z
+      .string({ error: "NIK harus 16 digit angka." })
+      .trim()
+      .regex(/^\d{16}$/, "NIK harus 16 digit angka."),
+    nama: reqText("Nama wajib diisi."),
+    tglLahir: reqText("Tanggal lahir wajib diisi."),
+    jenisKelamin: z.enum(["L", "P"], { error: "Jenis kelamin tidak valid." }),
+    jaminan: z.enum(["umum", "bpjs"], { error: "Jenis jaminan tidak valid." }),
+    alamat: optText,
+    telepon: optText,
+    bpjsNo: optText,
+    alergi: optText,
+    agama: optEnum(AGAMA),
+    pekerjaan: optText,
+    pendidikan: optEnum(PENDIDIKAN),
+    statusNikah: optEnum(STATUS_NIKAH),
+    riwayatKeluarga: optText,
+    merokok: optEnum(MEROKOK),
+    alkohol: optEnum(ALKOHOL),
+    polaMakan: optText,
+  })
+  .transform(
+    (o): CreatePatientInput => ({
+      ...o,
+      bpjsNo: o.jaminan === "bpjs" ? o.bpjsNo : null,
+    }),
+  );
 
 /** Validate raw JSON into a CreatePatientInput, or return an error message. */
 export function parsePatientInput(data: unknown): CreatePatientInput | string {
-  if (typeof data !== "object" || data === null) return "Data tidak valid.";
-  const rec: Record<string, unknown> = Object.fromEntries(Object.entries(data));
-
-  const nik = str(rec.nik);
-  if (!nik || !/^\d{16}$/.test(nik)) return "NIK harus 16 digit angka.";
-  const nama = str(rec.nama);
-  if (!nama) return "Nama wajib diisi.";
-  const tglLahir = str(rec.tglLahir);
-  if (!tglLahir) return "Tanggal lahir wajib diisi.";
-
-  const jk = rec.jenisKelamin;
-  if (jk !== "L" && jk !== "P") return "Jenis kelamin tidak valid.";
-  const jaminan = rec.jaminan;
-  if (jaminan !== "umum" && jaminan !== "bpjs") return "Jenis jaminan tidak valid.";
-
-  const jenisKelamin: JenisKelamin = jk;
-  const jam: Jaminan = jaminan;
-
-  return {
-    nik,
-    nama,
-    tglLahir,
-    jenisKelamin,
-    jaminan: jam,
-    alamat: str(rec.alamat),
-    telepon: str(rec.telepon),
-    bpjsNo: jam === "bpjs" ? str(rec.bpjsNo) : null,
-    alergi: str(rec.alergi),
-    agama: oneOf(rec.agama, AGAMA),
-    pekerjaan: str(rec.pekerjaan),
-    pendidikan: oneOf(rec.pendidikan, PENDIDIKAN),
-    statusNikah: oneOf(rec.statusNikah, STATUS_NIKAH),
-    riwayatKeluarga: str(rec.riwayatKeluarga),
-    merokok: oneOf(rec.merokok, MEROKOK),
-    alkohol: oneOf(rec.alkohol, ALKOHOL),
-    polaMakan: str(rec.polaMakan),
-  };
+  return parse(patientSchema, data);
 }

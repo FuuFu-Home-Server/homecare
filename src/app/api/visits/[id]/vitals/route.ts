@@ -1,29 +1,7 @@
 import { NextResponse } from "next/server";
 import { getQueueEntry, recordVitals } from "@/lib/db/queue";
 import { currentUser } from "@/lib/session";
-import type { VitalsInput } from "@/types";
-
-function numOrNull(v: unknown): number | null {
-  if (typeof v === "number" && Number.isFinite(v)) return v;
-  if (typeof v === "string" && v.trim() !== "" && Number.isFinite(Number(v))) return Number(v);
-  return null;
-}
-
-function parseVitals(data: unknown): VitalsInput | string {
-  if (typeof data !== "object" || data === null) return "Data tidak valid.";
-  const rec: Record<string, unknown> = Object.fromEntries(Object.entries(data));
-  const keluhanUtama =
-    typeof rec.keluhanUtama === "string" ? rec.keluhanUtama.trim() : "";
-  if (!keluhanUtama) return "Keluhan utama wajib diisi.";
-  return {
-    keluhanUtama,
-    tdSistol: numOrNull(rec.tdSistol),
-    tdDiastol: numOrNull(rec.tdDiastol),
-    suhu: numOrNull(rec.suhu),
-    berat: numOrNull(rec.berat),
-    tinggi: numOrNull(rec.tinggi),
-  };
-}
+import { parseVitals } from "@/lib/validation/visit";
 
 export async function POST(
   request: Request,
