@@ -13,6 +13,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [recover, setRecover] = useState(false);
+  const [recoveryKey, setRecoveryKey] = useState("");
+  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
     getJson<{ needsSetup: boolean }>("/api/setup/status")
@@ -35,6 +38,21 @@ export default function LoginPage() {
     }
   }
 
+  async function submitRecover(): Promise<void> {
+    setBusy(true);
+    setError(null);
+    try {
+      await postJson("/api/auth/recover", { username, recoveryKey, password });
+      setRecover(false);
+      setRecoveryKey("");
+      setPassword("");
+      setNotice("Password berhasil diatur ulang. Silakan masuk.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Gagal memulihkan.");
+    }
+    setBusy(false);
+  }
+
   return (
     <div className="flex min-h-dvh items-center justify-center bg-linear-to-br from-slate-50 to-brand-50 px-4">
       <div className="w-full max-w-sm">
@@ -47,31 +65,89 @@ export default function LoginPage() {
         </div>
 
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              submit(username, password);
-            }}
-            className="space-y-4"
-          >
-            <Input
-              label="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              autoComplete="username"
-            />
-            <Input
-              label="Password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-              error={error ?? undefined}
-            />
-            <Button type="submit" loading={busy} className="w-full">
-              Masuk
-            </Button>
-          </form>
+          {notice ? <p className="mb-4 text-sm text-emerald-600">{notice}</p> : null}
+          {recover ? (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                submitRecover();
+              }}
+              className="space-y-4"
+            >
+              <p className="text-sm text-slate-500">
+                Masukkan username, kunci pemulihan, dan password baru.
+              </p>
+              <Input
+                label="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                autoComplete="username"
+              />
+              <Input
+                label="Kunci Pemulihan"
+                value={recoveryKey}
+                onChange={(e) => setRecoveryKey(e.target.value)}
+              />
+              <Input
+                label="Password Baru"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+                error={error ?? undefined}
+              />
+              <Button type="submit" loading={busy} className="w-full">
+                Atur Ulang Password
+              </Button>
+              <button
+                type="button"
+                className="w-full text-center text-xs text-slate-500 hover:text-slate-700"
+                onClick={() => {
+                  setRecover(false);
+                  setError(null);
+                }}
+              >
+                Kembali ke masuk
+              </button>
+            </form>
+          ) : (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                submit(username, password);
+              }}
+              className="space-y-4"
+            >
+              <Input
+                label="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                autoComplete="username"
+              />
+              <Input
+                label="Password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                error={error ?? undefined}
+              />
+              <Button type="submit" loading={busy} className="w-full">
+                Masuk
+              </Button>
+              <button
+                type="button"
+                className="w-full text-center text-xs text-slate-500 hover:text-slate-700"
+                onClick={() => {
+                  setRecover(true);
+                  setError(null);
+                  setNotice(null);
+                }}
+              >
+                Lupa password?
+              </button>
+            </form>
+          )}
         </div>
 
         <p className="mt-4 text-center text-xs text-slate-400">SIPP {CONFIG.clinic.sipp}</p>

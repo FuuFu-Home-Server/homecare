@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import { countUsers, createUser, isUsernameTaken } from "@/lib/db/users";
 import { updateClinic } from "@/lib/db/settings";
+import { encryptDatabase, setMasterKey } from "@/lib/db/client";
+import { initKeystore, keystoreExists } from "@/lib/crypto/keystore";
 import { establishSession } from "@/lib/session";
 import { parseSetup } from "@/lib/validation/setup";
 import { CONFIG } from "@/lib/config";
 
 /** First-run only: create the owner (perawat) account + clinic identity. */
 export async function POST(request: Request): Promise<NextResponse> {
-  if (countUsers() > 0) {
+  if (keystoreExists() || countUsers() > 0) {
     return NextResponse.json({ error: "Aplikasi sudah dikonfigurasi." }, { status: 403 });
   }
 
@@ -37,6 +39,13 @@ export async function POST(request: Request): Promise<NextResponse> {
     gaji: null,
   });
 
+  // Encrypt the freshly-populated DB at rest. The keystore wraps a random master
+  // key with the owner's password (Argon2) and a one-time recovery key. After
+  // this point every connection must hold the key.
+  const { masterKey, recoveryKey } = initKeystore(user.username, parsed.password);
+  encryptDatabase(masterKey);
+  setMasterKey(masterKey);
+
   await establishSession({
     userId: user.id,
     username: user.username,
@@ -44,5 +53,5 @@ export async function POST(request: Request): Promise<NextResponse> {
     role: user.role,
   });
 
-  return NextResponse.json({ user }, { status: 201 });
+  return NextResponse.json({ user, recoveryKey }, { status: 201 });
 }

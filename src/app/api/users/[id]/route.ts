@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { deleteUser, findUserById, setUserActive, updateUser } from "@/lib/db/users";
+import { keystoreExists, removeUser } from "@/lib/crypto/keystore";
 import { currentUser } from "@/lib/session";
 import type { Role } from "@/types";
 
@@ -71,9 +72,11 @@ export async function DELETE(
   if (targetId === user.userId) {
     return NextResponse.json({ error: "Tidak bisa menghapus akun sendiri." }, { status: 400 });
   }
-  if (!findUserById(targetId)) {
+  const target = findUserById(targetId);
+  if (!target) {
     return NextResponse.json({ error: "Pengguna tidak ditemukan." }, { status: 404 });
   }
   deleteUser(targetId);
+  if (keystoreExists()) removeUser(target.username);
   return NextResponse.json({ ok: true });
 }

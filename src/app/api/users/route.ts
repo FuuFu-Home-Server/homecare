@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { createUser, isUsernameTaken, listUsers } from "@/lib/db/users";
+import { getMasterKey } from "@/lib/db/client";
+import { keystoreExists, putUser } from "@/lib/crypto/keystore";
 import { currentUser } from "@/lib/session";
 import { parseCreateUser } from "@/lib/validation/user";
 
@@ -27,5 +29,12 @@ export async function POST(request: Request): Promise<NextResponse> {
   if (isUsernameTaken(parsed.username)) {
     return NextResponse.json({ error: "Username sudah dipakai." }, { status: 409 });
   }
-  return NextResponse.json({ user: createUser(parsed) }, { status: 201 });
+  const user = createUser(parsed);
+
+  // Grant the new account access to the encrypted DB by wrapping the master key
+  // (held in memory for the logged-in perawat) with their password.
+  const masterKey = getMasterKey();
+  if (keystoreExists() && masterKey) putUser(masterKey, parsed.username, parsed.password);
+
+  return NextResponse.json({ user }, { status: 201 });
 }

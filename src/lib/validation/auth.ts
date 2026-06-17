@@ -26,6 +26,23 @@ export function parseUnlock(data: unknown): { password: string } | string {
   return parse(unlockSchema, data);
 }
 
+const recoverSchema = z.object({
+  username: z.string({ error: "Username wajib diisi." }).trim().min(1, "Username wajib diisi."),
+  recoveryKey: z
+    .string({ error: "Kunci pemulihan wajib diisi." })
+    .trim()
+    .min(1, "Kunci pemulihan wajib diisi."),
+  password: z
+    .string({ error: "Password baru minimal 4 karakter." })
+    .min(4, "Password baru minimal 4 karakter."),
+});
+
+export function parseRecover(
+  data: unknown,
+): { username: string; recoveryKey: string; password: string } | string {
+  return parse(recoverSchema, data);
+}
+
 const accountSchema = z
   .object({
     nama: reqText("Nama wajib diisi."),

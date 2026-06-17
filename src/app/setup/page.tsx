@@ -34,6 +34,8 @@ export default function SetupPage() {
   const [clinic, setClinic] = useState<ClinicForm>(EMPTY_CLINIC);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [recoveryKey, setRecoveryKey] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     getJson<{ needsSetup: boolean }>("/api/setup/status")
@@ -57,9 +59,14 @@ export default function SetupPage() {
     if (!valid) return;
     setBusy(true);
     try {
-      await postJson("/api/setup", { username, nama, password, clinic });
-      router.replace("/dashboard");
-      router.refresh();
+      const res = await postJson<{ recoveryKey: string }>("/api/setup", {
+        username,
+        nama,
+        password,
+        clinic,
+      });
+      setRecoveryKey(res.recoveryKey);
+      setBusy(false);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Gagal menyimpan.");
       setBusy(false);
@@ -69,6 +76,45 @@ export default function SetupPage() {
   if (!ready) {
     return (
       <div className="flex min-h-dvh items-center justify-center text-sm text-slate-400">Memuat…</div>
+    );
+  }
+
+  if (recoveryKey) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center bg-linear-to-br from-slate-50 to-brand-50 px-4 py-8">
+        <div className="w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h1 className="text-lg font-semibold text-slate-800">Simpan Kunci Pemulihan</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Catat kunci ini di tempat aman. Ini satu-satunya cara membuka data jika password
+            perawat terlupa. Kunci tidak akan ditampilkan lagi.
+          </p>
+          <div className="mt-4 rounded-lg border border-slate-300 bg-slate-50 p-3 font-mono text-sm break-all text-slate-800">
+            {recoveryKey}
+          </div>
+          <div className="mt-4 flex gap-3">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                navigator.clipboard?.writeText(recoveryKey).then(
+                  () => setCopied(true),
+                  () => setCopied(false),
+                );
+              }}
+            >
+              {copied ? "Tersalin ✓" : "Salin"}
+            </Button>
+            <Button
+              className="flex-1"
+              onClick={() => {
+                router.replace("/dashboard");
+                router.refresh();
+              }}
+            >
+              Saya sudah menyimpan, lanjut
+            </Button>
+          </div>
+        </div>
+      </div>
     );
   }
 

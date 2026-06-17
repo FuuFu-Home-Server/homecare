@@ -18,13 +18,20 @@ const SCHEMA_VERSION = 1;
 /** Hex-encoded 32-byte DB master key, held in memory for the unlocked session. */
 let masterKeyHex: string | null = null;
 
-/** Set after the keystore is unlocked (login) or created (setup). */
+/** Set after the keystore is unlocked (login) or created (setup). Drops any
+ * stale (possibly unkeyed) handle so the next getDb() reopens with the key. */
 export function setMasterKey(key: Buffer): void {
+  closeDb();
   masterKeyHex = key.toString("hex");
 }
 
 export function hasMasterKey(): boolean {
   return masterKeyHex !== null;
+}
+
+/** In-memory master key for re-wrapping keystore entries; null when locked. */
+export function getMasterKey(): Buffer | null {
+  return masterKeyHex ? Buffer.from(masterKeyHex, "hex") : null;
 }
 
 /** Drop the key and close the handle (logout / app lockout). */

@@ -3,7 +3,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { CONFIG } from "@/lib/config";
 import { nowWIB } from "@/lib/format";
-import { closeDb, currentDbPath, getDb } from "@/lib/db/client";
+import { closeDb, currentDbPath, getDb, getMasterKey, hasMasterKey } from "@/lib/db/client";
+import { keystoreExists } from "@/lib/crypto/keystore";
 
 export interface BackupInfo {
   name: string;
@@ -47,9 +48,17 @@ function prune(): void {
   }
 }
 
-/** Consistent on-device snapshot via VACUUM INTO; prunes to keepLast. */
+/** Consistent on-device snapshot via VACUUM INTO; prunes to keepLast. VACUUM
+ * INTO refuses to overwrite, so disambiguate names that collide within a second
+ * (e.g. a manual backup immediately followed by a restore's safety snapshot). */
 export function createBackup(): BackupInfo {
-  const name = `clinic-${stamp()}.db`;
+  const base = stamp();
+  let name = `clinic-${base}.db`;
+  let n = 1;
+  while (fs.existsSync(path.join(backupDir(), name))) {
+    name = `clinic-${base}-${n}.db`;
+    n++;
+  }
   const dest = path.join(backupDir(), name);
   getDb().exec(`VACUUM INTO '${dest.replace(/'/g, "''")}'`);
   prune();
@@ -58,6 +67,8 @@ export function createBackup(): BackupInfo {
 
 /** Create a backup only if the newest one is older than the configured cadence. */
 export function autoBackupIfDue(): BackupInfo | null {
+  // An encrypted DB can only be snapshotted while unlocked; skip when locked.
+  if (keystoreExists() && !hasMasterKey()) return null;
   const last = lastBackup();
   if (last) {
     const ageHours = (Date.now() - new Date(last.createdAt).getTime()) / 3_600_000;
@@ -77,6 +88,8 @@ export function restoreBackup(name: string): void {
   if (!fs.existsSync(src)) throw new Error("Berkas cadangan tidak ditemukan.");
 
   const probe = new Database(src, { readonly: true });
+  const key = getMasterKey();
+  if (key) probe.pragma(`key = "x'${key.toString("hex")}'"`);
   const rows = probe.pragma("quick_check") as { quick_check: string }[];
   probe.close();
   if (rows[0]?.quick_check !== "ok") throw new Error("Berkas cadangan rusak.");

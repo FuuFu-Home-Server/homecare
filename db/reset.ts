@@ -22,6 +22,13 @@ for (const suffix of ["", "-journal", "-wal", "-shm"]) {
   if (fs.existsSync(f)) fs.rmSync(f);
 }
 
+// Drop the keystore + backups too: a stale keystore (from a prior wizard run)
+// would mark the fresh plaintext DB as "encrypted" and break login.
+const KEYSTORE_PATH = path.join(DB_DIR, "keystore.json");
+if (fs.existsSync(KEYSTORE_PATH)) fs.rmSync(KEYSTORE_PATH);
+const BACKUPS_DIR = path.join(DB_DIR, "backups");
+if (fs.existsSync(BACKUPS_DIR)) fs.rmSync(BACKUPS_DIR, { recursive: true, force: true });
+
 const schema = fs.readFileSync(SCHEMA_PATH, "utf8");
 const db = new Database(DB_PATH);
 db.exec(schema);
